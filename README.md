@@ -1,0 +1,5 @@
+- ssh into server
+- install nginx using dnf
+- create files and folders like '/data/www' and '/data/images' using sudo privileges
+- use sftp to transfer files from my pc to the server
+- navigate around strict SELinux permissions on the whole of folder and files in 'data/www'; resulted in 403 error when nginx tried serving the web files from this directory. Fixed this by installing semanage full tool and labelling the whole of the directory with 'httpd_sys_content_t' label.
