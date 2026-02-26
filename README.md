@@ -1,6 +1,36 @@
-- ssh into server
-- install nginx using dnf
-- create files and folders like '/data/www' and '/data/images' using sudo privileges
-- use sftp to transfer files from my pc to the server
-- (SELinux Network Booleans) in Rocky Linux: navigate around strict SELinux permissions on the whole of folder and files in 'data/www'; resulted in 403 error when nginx tried serving the web files from this directory. Fixed this by installing semanage full tool and labelling the whole of the directory with 'httpd_sys_content_t' label. Labelling web files to be served as http content inorder for SElinux to allow them through
-- (SELinux File Contexts) set SElinux label httpd_can_network_connect --> on, to allow localhost communication on different ports like :80 and :8080 for proxy_pass (reverse proxy) to work properly
+# Nginx Web Server
+
+## Setup
+
+1. Git clone this repo to your server's home directory
+```bash
+git clone https://github.com/2Kelvin/nginx-web-server.git
+```
+
+2. Navigate into the repo directory and then into the website folder
+```bash
+cd nginx-web-server/website
+```
+
+3. Create the necessary website directories (in `/var` dir).
+```bash
+sudo mkdir -p /var/www/{html,images}
+```
+
+4. Move the website files to their respective directories.
+```bash
+sudo mv {index.html,styles.css} /var/www/html
+```
+
+and
+
+```bash
+sudo mv images/* /var/www/images
+```
+
+5. Navigate out of the website folder
+```bash
+cd ..
+```
+
+## Installation
