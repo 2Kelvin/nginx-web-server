@@ -8,9 +8,9 @@ git clone https://github.com/2Kelvin/nginx-web-server.git
 ```
 
 2. Navigate into the repo directory and then into the website folder
-```bash
-cd nginx-web-server/website
-```
+    ```bash
+    cd nginx-web-server/website
+    ```
 
 3. Create the necessary website directories (in `/var` dir).
     ```bash
