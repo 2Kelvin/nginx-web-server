@@ -34,9 +34,11 @@
     ```
 
 5. Navigate out of the website folder.
-```bash
-cd ..
-```
+    ```bash
+    cd ..
+    ```
+
+---
 
 ## Installation
 
