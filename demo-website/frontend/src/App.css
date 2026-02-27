@@ -15,7 +15,7 @@ body {
   width: 100%;
   height: auto;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .fact-list {
@@ -26,6 +26,48 @@ body {
   background: #16213e;
   padding: 20px;
   margin-bottom: 20px;
-  border-left: 5px solid #009639; /* Nginx Green */
+  border-left: 5px solid #009639;
+  /* Nginx Green */
   border-radius: 4px;
+}
+
+.slideshow-container {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.fact-card {
+  background: #16213e;
+  padding: 40px;
+  border-radius: 15px;
+  border-bottom: 6px solid #009639;
+  /* Nginx Green */
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.next-btn {
+  margin-top: 25px;
+  background-color: #009639;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.next-btn:hover {
+  background-color: #007a2e;
+}
+
+.counter {
+  margin-top: 15px;
+  color: #888;
+  font-size: 0.9rem;
 }
