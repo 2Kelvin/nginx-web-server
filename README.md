@@ -1,68 +1,76 @@
-# Nginx Web Server
+# Nginx Fullstack Web Server
 
 ## Setup
 
-### Setup Web Files
+Git clone this repo to your server's home directory.
+```bash
+git clone https://github.com/2Kelvin/nginx-web-server.git
+```
 
-1. Git clone this repo to your server's home directory
-    ```bash
-    git clone https://github.com/2Kelvin/nginx-web-server.git
-    ```
+### Nginx Setup
 
-2. Navigate into the repo directory and then into the website folder
+- Navigate into the repo directory and then into the website folder.
     ```bash
     cd nginx-web-server/website
     ```
 
-3. Create the necessary website directories (in `/var` dir).
+- Give `nginx-install` excutable permission, if not given already.
     ```bash
-    sudo mkdir -p /var/www/{html,images}
+    chmod +x nginx-install
     ```
 
-4. Move the website files to their respective directories.
+- Run `nginx-install` to install and setup nginx and ufw.
     ```bash
-    sudo mv {index.html,styles.css} /var/www/html
+    ./nginx-install
     ```
 
-    and
+    Just a quick note: before installing nginx the script updates apt and upgrade the system first to fetch the latest versions of all installed packages for better compatibility with nginx and avoiding bugs and security issues.
+    
+    ### Explanation on the firewall configuration (`ufw`)
 
+    - Checking the status of the firewall; which ports are open and which ports are not:
+        ```bash
+        sudo ufw status
+        ```
+
+    - Allowing essential web server & ssh ports past the firewall: `ssh`:`port 22`, `http`:`port 80` & `https`: `port 443`
+        ```bash
+        sudo ufw allow ssh
+        sudo ufw allow http
+        sudo ufw allow https
+
+        # activating ufw with all the above firewall rules
+        sudo ufw enable
+
+        # checking our enabled ports
+        sudo ufw status
+        ```
+
+
+### Website Setup
+
+For demonstration, I'm using a fullstack app running React in the frontend and Expressjs in the backend. To use this same website, install the prerequisites: `nodejs` and `npm` in your ubuntu server.
+
+- Install nodejs and npm.
     ```bash
-    sudo mv images/* /var/www/images
+    sudo apt update && sudo apt upgrade -y
+    sudo apt install -y nodejs npm
     ```
 
-5. Confirm that the web files are in the right contents like so:
+- Navigate to the backend folder and initialize `package.json` and install the necessary packages: `express` and `cors`.
+    ```bash
+    cd nginx-web-server # navigating inside backend folder
+
+    npm init # initializing package.json
+    npm install experess cors # installing packages
+    ```
+
+- Confirm that the web files are in the right contents like so:
     ```bash
     ls /var/www/{html,images}
     ```
 
-5. Navigate out of the website folder.
+- Navigate out of the website folder.
     ```bash
     cd ..
     ```
-
-### Configure Firewall: `ufw`
-
-- Checking the status of the firewall; which ports are open and which ports are not:
-    ```bash
-    sudo ufw status
-    ```
-
-- Allowing essential web server & ssh ports past the firewall: `ssh`:`port 22`, `http`:`port 80` & `https`: `port 443`
-    ```bash
-    sudo ufw allow ssh
-    sudo ufw allow http
-    sudo ufw allow https
-
-    # activating ufw with all the above firewall rules
-    sudo ufw enable
-
-    # checking our enabled ports
-    sudo ufw status
-    ```
-
-## Installation
-
-Run the `nginx` script in nginx-web-server folder.
-```bash
-./nginx-install
-```

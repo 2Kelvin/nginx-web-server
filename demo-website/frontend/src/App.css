@@ -1,0 +1,31 @@
+body {
+  background-color: rgba(26, 26, 46, 0.8);
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.hero-img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.fact-list {
+  margin-top: 40px;
+}
+
+.fact-item {
+  background: #16213e;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 5px solid #009639; /* Nginx Green */
+  border-radius: 4px;
+}
