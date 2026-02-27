@@ -18,4 +18,4 @@ sudo ufw allow https
 sudo ufw --force enable
 echo -e "\e[32mSuccessfully activated the firewall and allowed ssh, http and https ports\e[0m"
 sudo ufw status
-echo -e "Visit your website served by nginx by typing this in your browser\e[34mhttp://your_server_ip\e[0m"
+echo -e "Visit your website served by nginx by typing this in your browser \e[34mhttp://your_server_ip\e[0m"
