@@ -13,6 +13,6 @@ echo "Enabling ssh (22), http (80) and https (443) ports ..."
 sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
-sudo ufw enable -y
+sudo ufw --force enable
 echo "Successfully ctivated these ports, happy SSH-ing and web serving" 
 sudo ufw status
