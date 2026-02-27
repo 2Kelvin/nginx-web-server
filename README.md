@@ -64,13 +64,3 @@ For demonstration, I'm using a fullstack app running React in the frontend and E
     npm init # initializing package.json
     npm install experess cors # installing packages
     ```
-
-- Confirm that the web files are in the right contents like so:
-    ```bash
-    ls /var/www/{html,images}
-    ```
-
-- Navigate out of the website folder.
-    ```bash
-    cd ..
-    ```
