@@ -17,4 +17,4 @@ sudo ufw allow http
 sudo ufw allow https
 sudo ufw --force enable
 sudo ufw status
-echo -e "\e[32mSuccessfully activated ssh, http and https ports, happy SSH-ing and web serving\e[0m" 
+echo -e "\e[32mSuccessfully activated ssh, http and https ports, happy SSH-ing and web serving\e[0m\n"
