@@ -1,18 +1,19 @@
 #!/bin/bash
 
 # update apt, upgrade system and install nginx
+echo -e "\n\e[34mUpdating apt & system and installing nginx\e[0m"
 sudo apt update && sudo apt upgrade -y
 sudo apt install nginx -y
 echo -e "\e[32mSuccessfully installed Nginx\e[0m"
 nginx -v
 
 # configure firewall
-echo "Checking firewall status ..."
+echo "\nChecking firewall status ..."
 sudo ufw status
 echo "Enabling ssh (22), http (80) and https (443) ports ..."
 sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
 sudo ufw --force enable
-echo "Successfully ctivated these ports, happy SSH-ing and web serving" 
+echo "\e[34mSuccessfully activated ssh, http and https ports, happy SSH-ing and web serving\e[0m" 
 sudo ufw status
