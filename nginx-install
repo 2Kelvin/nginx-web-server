@@ -9,7 +9,7 @@ nginx -v
 
 # configure firewall
 echo -e "\n\e[34mConfiguring firewall\e[0m"
-echo -e "\nChecking firewall status ..."
+echo "Checking firewall status ..."
 sudo ufw status
 echo "Enabling ssh (22), http (80) and https (443) ports ..."
 sudo ufw allow ssh
