@@ -62,7 +62,7 @@
 
 ## Installation
 
-Run the `nginx` script in nginx-web-server.
+Run the `nginx` script in nginx-web-server folder.
 ```bash
 ./nginx-install
 ```
