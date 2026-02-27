@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# refresh apt and update system
+sudo apt update && sudo apt upgrade
+# installing nginx
+sudo apt install nginx -y
+
+echo -e "\e[32mSuccessfully installed Nginx\e[0m]"
+nginx -v

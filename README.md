@@ -38,11 +38,9 @@
     cd ..
     ```
 
----
-
 ## Installation
 
 Run the `nginx` script in nginx-web-server.
 ```bash
-./nginx
+./nginx-install
 ```
