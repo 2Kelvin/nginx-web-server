@@ -48,9 +48,9 @@ echo -e "\n✅ \e[32mNginx configs for the website successfully setup\e[0m"
 
 # setup separate folder user's home to store and run the expressjs api
 echo -e "\n\e[34mSetting up the api and pm2 ...\e[0m"
-mkdir ~/apis/nginx-facts
-sudo cp -r demo-website/backend/* ~/apis/nginx-facts/
-cd ~/apis/nginx-facts
+mkdir -p "$HOME/apis/nginx-facts"
+sudo cp -r demo-website/backend/* "$HOME/apis/nginx-facts"
+cd "$HOME/apis/nginx-facts"
 npm i
 
 # installing pm2 for a persistent running server across reboots
@@ -62,7 +62,7 @@ if [ -n "$pm2startup_setup" ]; then
     eval "$pm2startup_setup"
     pm2 save
     echo -e "\n✅ \e[32mAPI and pm2 successfully configured\e[0m"
-    pm2 status
 else
     echo "Could not find the startup command. Maybe it's already configured?"
 fi
+pm2 status
