@@ -63,6 +63,6 @@ if [ -n "$pm2startup_setup" ]; then
     pm2 save
     echo -e "\n✅ \e[32mAPI and pm2 successfully configured\e[0m"
 else
-    echo "Could not find the startup command. Maybe it's already configured?"
+    echo "Could not find the startup command. It could already be configured"
 fi
-pm2 status
+# pm2 status
