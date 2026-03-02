@@ -105,7 +105,7 @@ git clone https://github.com/2Kelvin/nginx-web-server.git
         sudo systemctl reload nginx 
         ```
 
-    ### ExpressJS Backend API setup
+        ### ExpressJS Backend API setup
 
     - Create a separate folder in user's home to store the backend api server; this is where it will be running from.
         ```bash
@@ -127,7 +127,7 @@ git clone https://github.com/2Kelvin/nginx-web-server.git
         npm i
         ```
 
-    ## Install `pm2` and running the api persistently across reboots
+        ## Install `pm2` and running the api persistently across reboots
         ```bash
         # install pm2 to the whole system
         sudo npm install -g pm2
