@@ -7,7 +7,8 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/facts')
+    // fetch('http://localhost:5000/api/facts') // use this for normal development
+    fetch('/api/facts') // use this for nginx to reverse proxy
       .then(res => res.json())
       .then(data => setFacts(data))
       .catch(err => console.error(err));
