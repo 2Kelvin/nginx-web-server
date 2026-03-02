@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# update apt, upgrade system and install nginx
+# update apt, upgrade system and install nginx, nodejs and npm
 echo -e "\e[34mUpdating apt & system and installing nginx\e[0m"
 sudo apt update && sudo apt upgrade -y
-sudo apt install nginx -y
+sudo apt install nginx nodejs npm -y
 echo -e "\e[32mSuccessfully installed Nginx\e[0m"
 nginx -v
 
@@ -19,3 +19,40 @@ sudo ufw --force enable
 echo -e "\e[32mSuccessfully activated the firewall and allowed ssh, http and https ports\e[0m"
 sudo ufw status
 echo -e "Visit your website (served by nginx) by typing your server ip in your browser, like so: \e[34mhttp://your_server_ip\e[0m"
+
+# setup nginx-facts-website + sites available and enabled
+sudo mkdir -p /var/www/nginx-facts-website/html
+sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
+sudo echo '
+server {
+    server_name ubuntuserver.lab;
+    root /var/www/nginx-facts-website/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/facts {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+' > /etc/nginx/sites-available/nginx-facts
+sudo ln -s /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# setup separate folder user's home to store and run the expressjs api
+mkdir ~/apis/nginx-facts
+sudo cp -r demo-website/backend/* ~/apis/nginx-facts/
+cd ~/apis/nginx-facts
+npm i
+
+# installing pm2 for a persistent running server across reboots
+sudo npm install -g pm2
+pm2 start server.js --name "nginx-facts-api"
+sudo pm2 startup systemd -u $(whoami) --hp $HOME
+pm2 save
+pm2 status
