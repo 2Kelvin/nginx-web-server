@@ -65,14 +65,14 @@ The demo website is a simple fullstack app about Nginx Facts running `react in t
     ```
 
 - Copy these configurations into the file:
-```bash
+    ```bash
     server {
             server_name your_server_ip
             root /var/www/nginx-facts-website/html
 
             location / {}
     }
-```
+    ```
 We're creating a website server block for our website to be served by nginx; we first give nginx our server name (replace this with your server's IP/host name). The server name is the ip or host name the user types in the browser trying to connect and make a request to our server. The root directive tells nginx where our website files lives, so the user requests are served the files in there. **/var/www/nginx-facts-website/html**: This is the folder we created earlier containing the build folder contents of our fullstack app.
 
 - To enable our website to be recognized by nginx, we create a **symbolic link** of our website configuration to the `/etc/nginx/sites-enabled/` folder.
@@ -87,9 +87,9 @@ We're creating a website server block for our website to be served by nginx; we 
     If there are any errors, make the necessary changes as directed in the console.
 
 - If our nginx configuration is okay, we **reload nginx** using `systemctl` for our configuration to take effect and for nginx to host our site.
-```bash
+    ```bash
     sudo systemctl reload nginx 
-```
+    ```
 
 NGINX USE SUMMARY
 Step,Action,Command/Location
