@@ -4,7 +4,7 @@
 echo -e "\e[34mUpdating apt & system and installing nginx\e[0m"
 sudo apt update && sudo apt upgrade -y
 sudo apt install nginx nodejs npm -y
-echo -e "\e[32mSuccessfully installed Nginx\e[0m"
+echo -e "✅ \e[32mSuccessfully installed Nginx, NodeJS and npm\e[0m"
 nginx -v
 
 # configure firewall
@@ -24,6 +24,7 @@ echo -e "Visit your website (served by nginx) by typing your server ip in your b
 echo -e "\n\e[34mSetting up the website and nginx configs ...\e[0m"
 sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
+sudo touch /etc/nginx/sites-available/nginx-facts
 sudo echo '
 server {
     server_name ubuntuserver.lab;
