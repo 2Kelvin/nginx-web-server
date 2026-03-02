@@ -1,11 +1,11 @@
 # Nginx Reverse Proxy & Web Server
 
-## Nginx Installation & UFW Setup
+## Installation &  Setup
 
-Git clone this repo to your server's home directory.
-```bash
-git clone https://github.com/2Kelvin/nginx-web-server.git
-```
+- Git clone this repo to your server's home directory.
+    ```bash
+    git clone https://github.com/2Kelvin/nginx-web-server.git
+    ```
 
 - Navigate into the repo.
     ```bash
@@ -45,7 +45,7 @@ git clone https://github.com/2Kelvin/nginx-web-server.git
         ```
 
 
-    ## Nginx Web Server Setup
+    ### Nginx Web Server Setup
 
     The demo website is a simple fullstack app about Nginx Facts running `react in the frontend` and `ExpressJS in the backend`. Since Nginx excels at serving static sites, I made a build of this website by running `npm run build`. These `build files` is what nginx will serve. Let's set it up:
 

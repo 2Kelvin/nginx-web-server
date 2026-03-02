@@ -8,7 +8,7 @@ echo -e "\e[32mSuccessfully installed Nginx\e[0m"
 nginx -v
 
 # configure firewall
-echo -e "\n\e[34mConfiguring firewall\e[0m"
+echo -e "\n\e[34mConfiguring firewall ...\e[0m"
 echo "Checking firewall status ..."
 sudo ufw status
 echo "Enabling ssh (22), http (80) and https (443) ports ..."
@@ -16,11 +16,12 @@ sudo ufw allow ssh
 sudo ufw allow http
 sudo ufw allow https
 sudo ufw --force enable
-echo -e "\e[32mSuccessfully activated the firewall and allowed ssh, http and https ports\e[0m"
+echo -e "✅ \e[32mSuccessfully activated the firewall and allowed ssh, http and https ports\e[0m"
 sudo ufw status
 echo -e "Visit your website (served by nginx) by typing your server ip in your browser, like so: \e[34mhttp://your_server_ip\e[0m"
 
 # setup nginx-facts-website + sites available and enabled
+echo -e "\n\e[34mSetting up the website and nginx configs ...\e[0m"
 sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
 sudo echo '
@@ -43,8 +44,10 @@ server {
 sudo ln -s /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
+echo -e "\n✅ \e[32mNginx configs for the website successfully setup\e[0m"
 
 # setup separate folder user's home to store and run the expressjs api
+echo -e "\n\e[34mSetting up the api and pm2 ...\e[0m"
 mkdir ~/apis/nginx-facts
 sudo cp -r demo-website/backend/* ~/apis/nginx-facts/
 cd ~/apis/nginx-facts
@@ -55,4 +58,5 @@ sudo npm install -g pm2
 pm2 start server.js --name "nginx-facts-api"
 sudo pm2 startup systemd -u $(whoami) --hp $HOME
 pm2 save
+echo -e "\n✅ \e[32mAPI and pm2 successfully configured\e[0m"
 pm2 status
