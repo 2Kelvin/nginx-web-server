@@ -24,23 +24,42 @@ echo -e "Visit your website (served by nginx) by typing your server ip in your b
 echo -e "\n\e[34mSetting up the website and nginx configs ...\e[0m"
 sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
-sudo echo '
+# sudo echo '
+# server {
+#     server_name ubuntuserver.lab;
+#     root /var/www/nginx-facts-website/html;
+#     index index.html;
+
+#     location / {
+#         try_files $uri $uri/ /index.html;
+#     }
+
+#     location /api/facts {
+#         proxy_pass http://127.0.0.1:5000;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#     }
+# }
+# ' > /etc/nginx/sites-available/nginx-facts
+# 1. Capture the IP address (taking the first one found)
+server_ip_address=$(hostname -I | awk '{print $1}')
+sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
 server {
-    server_name ubuntuserver.lab;
+    server_name $server_ip_address;
     root /var/www/nginx-facts-website/html;
     index index.html;
 
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files \$uri \$uri/ /index.html;
     }
 
     location /api/facts {
         proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
-' > /etc/nginx/sites-available/nginx-facts
+EOF
 sudo ln -s /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
@@ -66,3 +85,9 @@ else
     echo "Could not find the startup command. It could already be configured"
 fi
 # pm2 status
+
+
+Todo
+- replace pm2 with systemd timers
+- learn about tee and the difference between tee and echo and in permissions
+- uninstall pm2 and it's setup
