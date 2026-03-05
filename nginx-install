@@ -78,3 +78,4 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now "$service_name.service"
 sudo systemctl status "$service_name.service"
+echo -e "\n✅ \e[32m$service_name successfully setup and running persistently through systemd setup\e[0m"
