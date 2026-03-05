@@ -42,7 +42,7 @@ server {
     }
 }
 EOF
-sudo ln -s /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 echo -e "\n✅ \e[32mNginx configs for the website successfully setup\e[0m"
@@ -78,10 +78,3 @@ EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now "$service_name.service"
 sudo systemctl status "$service_name.service"
-
-
-Todo
-✅ - replace pm2 with systemd timers
-✅ - learn about tee and the difference between tee and echo and in permissions
-- learn "Here Document" (the EOF syntax)
-- uninstall pm2 and it's setup

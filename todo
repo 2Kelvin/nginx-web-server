@@ -1,0 +1,8 @@
+Todo
+✅ - replace pm2 with systemd timers
+✅ - learn about tee and the difference between tee and echo and in permissions
+- learn "Here Document" (the EOF syntax)
+- uninstall pm2 and it's setup
+
+Questions:
+- why did we use .service without a timer in api running. Isn't default systemd timers have 2 files by default: a .service and .timer file?
