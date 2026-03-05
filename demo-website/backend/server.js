@@ -16,4 +16,4 @@ app.get('/api/facts', (req, res) => {
     res.json(nginxFacts);
 });
 
-app.listen(PORT, () => console.log(`Backend running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Nginx Facts backend API running at http://localhost:${PORT}`));
