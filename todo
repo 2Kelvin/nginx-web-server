@@ -1,8 +1,4 @@
 Todo
-✅ - replace pm2 with systemd timers
-✅ - learn about tee and the difference between tee and echo and in permissions
-- learn "Here Document" (the EOF syntax)
-- uninstall pm2 and it's setup
+- learn "Here Document" (the EOF syntax) and tee command
+- Environment Variables: We can set up a .env file for your backend so you don't have to hardcode things like the PORT.
 
-Questions:
-- why did we use .service without a timer in api running. Isn't default systemd timers have 2 files by default: a .service and .timer file?

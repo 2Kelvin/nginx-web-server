@@ -1,9 +1,0 @@
-#!/bin/bash
-
-pm2 stop all
-pm2 delete all
-# eval $(pm2 unstartup | tail -n 1)
-pm2 unstartup
-sudo npm uninstall -g pm2
-rm -rf ~/.pm2
-which pm2

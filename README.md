@@ -17,11 +17,10 @@
     chmod +x nginx-install
     ```
 
-- Run `nginx-install` to install and setup nginx and ufw.
+- Run `nginx-install` with admin privileges to install and setup nginx, ufw and the whole Nginx Facts website.
     ```bash
-    ./nginx-install
+    sudo ./nginx-install
     ```
-
     Just a quick note: before installing nginx the script updates apt and upgrade the system first to fetch the latest versions of all installed packages for better compatibility with nginx and avoiding bugs and security issues.
     
 ## Script Explanation
@@ -61,33 +60,36 @@ The demo website is a simple fullstack app about Nginx Facts running `react in t
     sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
     ```
 
-- Create an nginx configuration file for the website in `/etc/nginx/sites-available/`. We're naming this configuration file `nginx-facts`.
+- Nginx nginx-facts website configuration:
     ```bash
-    sudo touch /etc/nginx/sites-available/nginx-facts
-    ```
-
-- Copy these configurations into the file:
-    ```bash
+    # grabbing the ip address of the server (ipv4 is the first one)
+    server_ip_address=$(hostname -I | awk '{print $1}')
+    sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
     server {
-        server_name ubuntuserver.lab;
+        # using the ip address we fetched above to link to our server 
+        server_name $server_ip_address;
+        # folder containing our web files to be hosted
         root /var/www/nginx-facts-website/html;
+        # nginx to serve the index.html file in our web folder above
         index index.html;
 
         location / {
-            # fixing routing
+            # fixing routing: how to map the user route requests and the fallback route
             # it says: navigate to file with the name the user typed if no file found navigate to the folder of that name ... 
             # ... if no folder found navigate to default index.html page
-            try_files $uri $uri/ /index.html;
+            try_files \$uri \$uri/ /index.html;
         }
 
+        # nodejs api configuration
         location /api/facts {
-            # the backend nodejs api server is running on
+            # reverse proxy: grab the api service running locally on port 5000
             proxy_pass http://127.0.0.1:5000;
-            # for proxies
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
+            # setting up proxies
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
         }
     }
+    EOF
     ```
 We're creating a website server block for our website to be served by nginx; we first give nginx our server name (replace this with your server's name/IP/host name). The server name is the ip or host name the user types in the browser trying to connect and make a request to our server. The root directive tells nginx where our website files lives, so the user requests are served the files in there. **/var/www/nginx-facts-website/html**: This is the folder we created earlier containing the build folder contents of our fullstack app.
 
@@ -129,16 +131,41 @@ We're creating a website server block for our website to be served by nginx; we 
     npm i
     ```
 
-    ## Install `pm2` and running the api persistently across reboots
+    ## Setup a `systemd service` for running the api 24/7 and persistently across reboots
     ```bash
-    # install pm2 to the whole system
-    sudo npm install -g pm2
-    # launch api application
-    pm2 start server.js --name "nginx-facts-api"
-    # always start the api server whenever system reboots & run under my/user account
-    sudo pm2 startup systemd -u $(whoami) --hp $HOME
-    pm2 save
+    sudo tee $service_path > /dev/null <<EOF
+    [Unit]
+    Description=Persistently running Nginx Facts website API
+    # start the api only after the server's network is setup
+    After=network.target 
+
+    [Service]
+    # grab current user's username and group name to setup ownership and permission for this nginx-facts-api service
+    # working directory allows the service to path to the necessary folder containing required folders like node modules to run the api
+    # execstart is basically doing: node server.js
+    # restart makes sure the api automatically restarts on crashing; restartsec executes the api restart after 5 seconds of failing to prevent some well known issues of restarting immediately after a process crashes
+    # Environment=NODE_ENV=production: improves nodejs performance in production
+    User=$USER
+    Group=$USER
+    WorkingDirectory=$api_folder
+    ExecStart=$node_bin $api_folder/server.js
+    Environment=NODE_ENV=production
+    Restart=always
+    RestartSec=5
+
+    [Install]
+    # ensures the service starts automatically everytime the server boots
+    WantedBy=multi-user.target
+    EOF
+
+    # update systemd to acknowledge the new .service config we added
+    sudo systemctl daemon-reload
+    # start the nginx-facts-api.service immediately and persist upon reboot
+    sudo systemctl enable --now "$service_name.service"
+    # checking if the service is active and running
+    sudo systemctl status "$service_name.service"
     ```
+    An API is a "Long-Running Process." You want it to start once and stay awake 24/7 to listen for users. For this, you only need a .service file. Timers trigger tasks to be performed at particular times/intervals then shutdown but apis run all the time; the restart=always is what the .service file uses to run the api all the time even if it crashes.
 
 
 ## NGINX Deployment Summary
@@ -151,12 +178,3 @@ We're creating a website server block for our website to be served by nginx; we 
 | **4. Enable** | Create the symbolic link. | `sudo ln -s ... /etc/nginx/sites-enabled/` |
 | **5. Verify** | Run the safety test. | `sudo nginx -t` ✅ |
 | **6. Go Live** | Reload the service. | `sudo systemctl reload nginx` 🚀 |
-
-
-Todo:
-Environment Variables: We can set up a .env file for your backend so you don't have to hardcode things like the PORT.
-
-- update /api/facts path in frontend fetch
-- explain a bit on the server configs in its section
-- create a backend folder in /home/user to run your backend
-- install and use pm2 (always running & survive restarts)
