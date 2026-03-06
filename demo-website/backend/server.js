@@ -1,19 +1,53 @@
+require('dotenv').config();
 const express = require('express');
+const mysql = require('mysql2');
 const cors = require('cors');
+
 const app = express();
-const PORT = 5000;
-
 app.use(cors());
+app.use(express.json()); // Essential for parsing POST/PUT data
 
-const nginxFacts = [
-    { id: 1, title: "The C10k Problem", detail: "NGINX was born to handle 10,000+ concurrent connections, something older servers struggled with." },
-    { id: 2, title: "The Swiss Army Knife", detail: "It's not just a web server; it's a load balancer, content cache, and reverse proxy." },
-    { id: 3, title: "High Performance", detail: "Because it's event-driven and asynchronous, it uses very little RAM even under heavy load." },
-    { id: 4, title: "SSL Termination", detail: "NGINX can handle the heavy lifting of encrypting/decrypting HTTPS traffic for your apps." }
-];
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT
+}).promise();
 
-app.get('/api/facts', (req, res) => {
-    res.json(nginxFacts);
+// READ ALL
+app.get('/api/facts', async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT * FROM facts");
+        res.json(rows);
+    } catch (err) { res.status(500).json(err); }
 });
 
-app.listen(PORT, () => console.log(`Nginx Facts backend API running at http://localhost:${PORT}`));
+// CREATE
+app.post('/api/facts', async (req, res) => {
+    const { title, detail } = req.body;
+    try {
+        await pool.query("INSERT INTO facts (title, detail) VALUES (?, ?)", [title, detail]);
+        res.status(201).json({ message: "Fact added!" });
+    } catch (err) { res.status(500).json(err); }
+});
+
+// UPDATE
+app.put('/api/facts/:id', async (req, res) => {
+    const { title, detail } = req.body;
+    try {
+        await pool.query("UPDATE facts SET title = ?, detail = ? WHERE id = ?", [title, detail, req.params.id]);
+        res.json({ message: "Fact updated!" });
+    } catch (err) { res.status(500).json(err); }
+});
+
+// DELETE
+app.delete('/api/facts/:id', async (req, res) => {
+    try {
+        await pool.query("DELETE FROM facts WHERE id = ?", [req.params.id]);
+        res.json({ message: "Fact deleted!" });
+    } catch (err) { res.status(500).json(err); }
+});
+
+const PORT = process.env.API_PORT || 5000;
+app.listen(PORT, () => console.log(`CRUD API running on port ${PORT}`));

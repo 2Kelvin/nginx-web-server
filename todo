@@ -1,4 +1,18 @@
 Todo
-- learn "Here Document" (the EOF syntax) and tee command
-- Environment Variables: We can set up a .env file for your backend so you don't have to hardcode things like the PORT.
+- add openssl cert to load balancer
+- turn the ubuntuserver2 & ubuntuserver3 ips to nat (they should be private) and statically assign their IPs
+- create another private/nat ubuntuserver for mysql database
+- make new react build and push to git
 
+
+Add These To The Above Documentation:
+- I turned the ubuntuserver2 & ubuntuserver3 ip to nat (hide from the public). Only VM1; the load balancer should be public for security reasons
+- add note that the 2 worker vms are offline for security, we do not expose the api to the public. and only the load balancing has an ip address since it receives requests and points them to the 2 worker servers
+- mysql doesn't have a manually created systemd like nodejs since installing mysql and enabling it creates a mysql process automatically ran by systemd that runs 24/7
+- no reverse proxy added in sites-available nginx configs for mysql port and process since the database exists in the same vm server as the api and the website
+- no need to open a mysql port through firewall since they're are on the same server, the api talks to mysql through its port locally (localhost), which is secure from the public
+- architecture picture with load balancing
+- Centralized DB: Both Worker 1 and Worker 2 connect to a single, dedicated Database VM (VM3). This ensures "Data Integrity"—no matter which worker a user hits, they see the same facts. If a user adds a new "Fact" while connected to any of the Workers, that fact won't exist on all other Workers. The data becomes consistent. A single source of truth
+- add; project was built with security and scalability first and in high consideration
+
+- learn "Here Document" (the EOF syntax) and tee command

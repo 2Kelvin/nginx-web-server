@@ -22,7 +22,7 @@
     sudo ./nginx-install
     ```
     Just a quick note: before installing nginx the script updates apt and upgrade the system first to fetch the latest versions of all installed packages for better compatibility with nginx and avoiding bugs and security issues.
-    
+
 ## Script Explanation
 
 ### Pointers on firewall configuration (`ufw`)
@@ -109,7 +109,7 @@ We're creating a website server block for our website to be served by nginx; we 
     sudo systemctl reload nginx 
     ```
 
-    ### ExpressJS Backend API setup
+    ### ExpressJS Backend API Setup
 
 - Create a separate folder in user's home to store the backend api server; this is where it will be running from.
     ```bash
@@ -167,6 +167,15 @@ We're creating a website server block for our website to be served by nginx; we 
     ```
     An API is a "Long-Running Process." You want it to start once and stay awake 24/7 to listen for users. For this, you only need a .service file. Timers trigger tasks to be performed at particular times/intervals then shutdown but apis run all the time; the restart=always is what the .service file uses to run the api all the time even if it crashes.
 
+    ### MYSQL Setup
+
+- In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
+    ```bash
+    bind-address = 0.0.0.0
+    ```
+
+    ### VMs setup
+- Give all VMs static IPs for consistency and prevent breaking connections caused by dynamically reassigned IPs by DNS
 
 ## NGINX Deployment Summary
 
