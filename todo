@@ -1,4 +1,5 @@
 Todo
+- permanently enable port forwarding & masquerading using `ufw` (learn && configuring NAT)
 - add openssl cert to load balancer
 - turn the ubuntuserver2 & ubuntuserver3 ips to nat (they should be private) and statically assign their IPs
 - create another private/nat ubuntuserver for mysql database

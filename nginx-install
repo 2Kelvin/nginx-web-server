@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# update apt, upgrade system and install nginx, mysql, nodejs and npm
-echo -e "\e[34mUpdating apt & system and installing nginx, npm, mysql and nodejs\e[0m"
+# update apt, upgrade system and install nginx, nodejs and npm
+echo -e "\e[34mUpdating apt & system and installing nginx, npm and nodejs\e[0m"
 sudo apt update && sudo apt upgrade -y
-sudo apt install nginx nodejs mysql-server npm -y
+sudo apt install nginx nodejs npm -y
 echo -e "✅ \e[32mSuccessfully installed Nginx, NodeJS and npm\e[0m"
 nginx -v
 
@@ -65,27 +65,6 @@ DB_PORT=3306
 API_PORT=5000
 EOF
 npm i
-# setup mysql
-sudo systemctl start mysql
-sudo systemctl enable --now mysql
-sudo mysql <<EOF
-CREATE DATABASE IF NOT EXISTS nginx_facts;
-CREATE USER IF NOT EXISTS 'nginx_user'@'localhost' IDENTIFIED BY '1234';
-GRANT ALL PRIVILEGES ON nginx_facts.* TO 'nginx_user'@'localhost';
-FLUSH PRIVILEGES;
-USE nginx_facts;
-CREATE TABLE IF NOT EXISTS facts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    detail TEXT NOT NULL
-);
-INSERT INTO facts (title, detail) VALUES 
-('The C10k Problem', 'NGINX was born to handle 10,000+ concurrent connections.'),
-('The Swiss Army Knife', 'It acts as a load balancer, content cache, and reverse proxy.'),
-('High Performance', 'Event-driven architecture keeps RAM usage extremely low.'),
-('SSL Termination', 'NGINX handles HTTPS encryption so your app doesn''t have to.');
-EOF
-echo -e "✅ \e[32mMYSQL successfully installed and database is running\e[0m\n"
 
 # installing systemd for a persistent running api across reboots
 echo -e "\e[34mCreating a $service_name systemd service ...\e[0m"

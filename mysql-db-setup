@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# installing mysql
+echo -e "\e[34mUpdating apt & system and installing MYSQL\e[0m"
+sudo apt update && sudo apt upgrade -y
+sudo apt install mysql-server -y
+# start running mysql service
+sudo systemctl start mysql
+sudo systemctl enable --now mysql
+# create nginx-facts webapp data
+sudo mysql <<EOF
+CREATE DATABASE IF NOT EXISTS nginx_facts;
+CREATE USER IF NOT EXISTS 'nginx_user'@'localhost' IDENTIFIED BY '1234';
+GRANT ALL PRIVILEGES ON nginx_facts.* TO 'nginx_user'@'localhost';
+FLUSH PRIVILEGES;
+USE nginx_facts;
+CREATE TABLE IF NOT EXISTS facts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    detail TEXT NOT NULL
+);
+INSERT INTO facts (title, detail) VALUES 
+('The C10k Problem', 'NGINX was born to handle 10,000+ concurrent connections.'),
+('The Swiss Army Knife', 'It acts as a load balancer, content cache, and reverse proxy.'),
+('High Performance', 'Event-driven architecture keeps RAM usage extremely low.'),
+('SSL Termination', 'NGINX handles HTTPS encryption so your app doesn''t have to.');
+EOF
+echo -e "✅ \e[32mMYSQL successfully installed MYSQL. The database is up and running\e[0m"
