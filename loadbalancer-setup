@@ -27,7 +27,6 @@ upstream webapp-servers {
 }
 
 server {
-    listen 80 default_server;
     server_name nginxloadbalancer.lab;
 
     location / {
@@ -42,7 +41,6 @@ server {
 }
 EOF
 sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
-sudo rm  /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 echo -e "✅ \e[32mnginx-facts website's loadbalancer successfully setup\e[0m\n"
