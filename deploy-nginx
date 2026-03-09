@@ -18,7 +18,6 @@ sudo ufw allow https
 sudo ufw --force enable
 echo -e "✅ \e[32mSuccessfully activated the firewall and allowed ssh, http and https ports\e[0m"
 sudo ufw status
-echo -e "Visit your website (served by nginx) by typing your server ip in your browser, like so: \e[34mhttp://your_server_ip\e[0m"
 
 # setup nginx-facts-website + sites available and enabled
 echo -e "\n\e[34mSetting up the website and nginx configs ...\e[0m"
@@ -26,6 +25,7 @@ sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
 sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
 server {
+    # load-balancer server's hostname(nginxloadbalancer.lab), public IP (192.168.100.207) and internal LAN (192.168.10.1)
     server_name nginxloadbalancer.lab 192.168.100.207 192.168.10.1;
     root /var/www/nginx-facts-website/html;
     index index.html;

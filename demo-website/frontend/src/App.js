@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
+import nginxPic from './images/nginxpic.png';
 
 function App() {
   const [facts, setFacts] = useState([]);
@@ -43,6 +44,7 @@ function App() {
   return (
     <div className="container">
       <h1>Nginx Fact Manager</h1>
+      <img src={nginxPic} alt="Nginx Architecture" className="hero-img" />
       
       <form onSubmit={handleSubmit}>
         <input placeholder="Title" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />

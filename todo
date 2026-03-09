@@ -41,6 +41,13 @@ In real enterprise data centers, backend servers (workers and databases) almost 
 - add; project was built with security and scalability first and in high consideration
 
 - learn "Here Document" (the EOF syntax) and tee command
+- 2. The Use of VM internal IPs
+
+In your setup, the internal LAN (192.168.10.0/24) is like a private hallway between your servers.
+
+    Security: By having VM2, VM3, and VM4 only on the internal network, they are shielded from the direct internet. Only VM1 (the "Security Guard") can talk to the outside world. 🛡️
+
+    Consistency: Internal IPs stay the same even if the Load Balancer's public IP changes.
 
 -----------------------architecture(vms and internal network)------------------------------
 🌐 The Edge Layer: VM1 (Load Balancer & Gateway)
