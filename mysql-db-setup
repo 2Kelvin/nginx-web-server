@@ -21,11 +21,25 @@ sudo apt install mysql-server -y
 # start running mysql service
 sudo systemctl start mysql
 sudo systemctl enable --now mysql
+
+# updating MySQL to listen on all interfaces
+echo -e "\e[34mConfiguring MySQL to allow connections from VM2 (webserver1) and VM3 (webserver2)...\e[0m"
+mysql_config_file="/etc/mysql/mysql.conf.d/mysqld.cnf"
+# Checking if MYSQL is currently set to listen to localhost; if so, swapping it to 0.0.0.0
+if grep -q "bind-address\s*=\s*127.0.0.1" "$mysql_config_file"; then
+    sudo sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' "$mysql_config_file"
+    echo -e "✅ \e[32mMYSQL bind-address updated to 0.0.0.0\e[0m"
+    sudo systemctl restart mysql
+else
+    echo -e "ℹ️ \e[1mBind-address already configured or not found.\e[0m"
+fi
 sudo systemctl status mysql
+# Using '%' to allow the user to connect from ANY remote IP 
+# using'192.168.10.%' to restrict access of the DB from the 2 VMs in the internal LAN
 # create nginx-facts webapp data
 sudo mysql <<EOF
 CREATE DATABASE IF NOT EXISTS ${DB_NAME};
-CREATE USER IF NOT EXISTS '${DB_USER}'@'${DB_HOST}' IDENTIFIED BY '${DB_PASSWORD}';
+CREATE USER IF NOT EXISTS '${DB_USER}'@'192.168.10.%' IDENTIFIED BY '${DB_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'${DB_HOST}';
 FLUSH PRIVILEGES;
 USE ${DB_NAME};
