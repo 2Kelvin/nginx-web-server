@@ -345,6 +345,8 @@ From the terminal of VM2, can you successfully ping the other internal members o
             server webserver2 192.168.10.3;
         }
         ```
+        **webserver1** and **webserver2** are just hostnames I gave the 2 servers' IPs in **/etc/hosts** file.
+        
     - Enabled the website configs:
         ```bash
         sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
