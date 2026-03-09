@@ -9,6 +9,7 @@ Todo
 - Do this in code to **mysql-db-setup script** - In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
         ```bash
         bind-address = 0.0.0.0
+- Since VM1 is acting as a "Shield" for the whole network, how would you change the firewall rules in your loadbalancer-setup script to make sure VM1 only accepts web traffic from the outside, but still allows the internal VMs (VM2, VM3, VM4) to communicate freely with each other
 
 - The Software Roadmap 🗺️
 To stay organized and avoid "configuration drift" (where one worker is different from the other), let's tackle the setup in this specific order:
