@@ -27,7 +27,7 @@ upstream webapp-servers {
 }
 
 server {
-    server_name 192.168.100.207;
+    server_name nginxloadbalancer.lab;
 
     location / {
         proxy_pass http://webapp-servers;
