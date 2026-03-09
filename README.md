@@ -317,7 +317,7 @@ From the terminal of VM2, can you successfully ping the other internal members o
     - In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
         ```bash
         bind-address = 0.0.0.0
-    ```
+        ```
 
 ### Web Servers Setup
 - Ran this script for a full nginx webserver setup:
