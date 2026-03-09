@@ -74,6 +74,12 @@ This is the "Vault."
 
 Questions:
 - what is port forwarding
+- why is this important in the load balancer logic and it's already handled by each vm worker (vm2 and 3)?:
+location /api/facts {
+        proxy_pass http://webapp-servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
 
 
 Here is the professional way to do it:

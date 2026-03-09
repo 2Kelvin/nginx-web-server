@@ -31,9 +31,16 @@ server {
     location / {
         proxy_pass http://webapp-servers;
     }
+
+    location /api/facts {
+        proxy_pass http://webapp-servers;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
 }
 EOF
 sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
+sudo rm  /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 echo -e "✅ \e[32mnginx-facts website's loadbalancer successfully setup\e[0m\n"
