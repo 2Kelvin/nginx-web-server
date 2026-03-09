@@ -50,7 +50,7 @@ echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 
 # setup MYSQL and a separate folder in user's home to store and run the expressjs api
 real_user=$(logname)
-real_home=$(eval echo ~$REAL_USER)
+real_home=$(eval echo ~$real_user)
 service_name="nginx-facts-api"
 service_path="/etc/systemd/system/$service_name.service"
 api_folder="$real_home/apis/nginx-facts"
