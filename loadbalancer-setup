@@ -27,7 +27,7 @@ upstream nginx-facts-webapp-servers {
 }
 
 server {
-    server_name nginxloadbalancer.lab
+    server_name nginxloadbalancer.lab;
 }
 EOF
 sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
