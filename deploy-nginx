@@ -49,9 +49,11 @@ sudo systemctl reload nginx
 echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 
 # setup MYSQL and a separate folder in user's home to store and run the expressjs api
+real_user=${SUDO_USER:-$(logname)}
+real_home=$(getent passwd "$REAL_USER" | cut -d: -f6)
 service_name="nginx-facts-api"
 service_path="/etc/systemd/system/$service_name.service"
-api_folder="$HOME/apis/nginx-facts"
+api_folder="$real_home/apis/nginx-facts"
 node_bin=$(which node)
 echo -e "\e[34mSetting up $service_name and its MYSQL database...\e[0m"
 mkdir -p $api_folder
@@ -67,8 +69,8 @@ Description=Persistently running Nginx Facts website API
 After=network.target
 
 [Service]
-User=$USER
-Group=$USER
+User=$real_user
+Group=$real_user
 WorkingDirectory=$api_folder
 ExecStart=$node_bin $api_folder/server.js
 Environment=NODE_ENV=production
