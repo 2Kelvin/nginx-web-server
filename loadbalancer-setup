@@ -25,6 +25,10 @@ upstream nginx-facts-webapp-servers {
     server webserver1 192.168.10.2;
     server webserver2 192.168.10.3;
 }
+
+server {
+    server_name nginxloadbalancer.lab
+}
 EOF
 sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
 sudo nginx -t
