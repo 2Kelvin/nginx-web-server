@@ -26,8 +26,7 @@ sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
 sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
 server {
-    listen 80 default_server;
-    server_name _;
+    server_name nginxloadbalancer.lab 192.168.100.207 192.168.10.1;
     root /var/www/nginx-facts-website/html;
     index index.html;
 
@@ -44,6 +43,8 @@ server {
 EOF
 sudo ln -sf /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
 sudo nginx -t
+# Remove the default Nginx config symlink to prevent conflicts
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo systemctl reload nginx
 echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 
