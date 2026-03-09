@@ -26,7 +26,7 @@ sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
 sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
 server {
-    server_name nginxloadbalancer.lab 192.168.100.1;
+    server_name 192.168.100.1 nginxloadbalancer.lab;
     root /var/www/nginx-facts-website/html;
     index index.html;
 
