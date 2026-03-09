@@ -5,7 +5,7 @@ Todo
 - create another private/nat ubuntuserver for mysql database
 - make new react build and push to git
 - fix security: replace with all env variables exposed in scripts (db and server)
-- learn xargs, NAT
+- learn xargs, NAT, tee, EOF
 - The Software Roadmap 🗺️
 
 To stay organized and avoid "configuration drift" (where one worker is different from the other), let's tackle the setup in this specific order:

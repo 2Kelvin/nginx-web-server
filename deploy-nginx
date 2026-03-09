@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # update apt, upgrade system and install nginx, nodejs and npm
-echo -e "\e[34mUpdating apt & system and installing nginx, npm and nodejs\e[0m"
+echo -e "\e[34mUpdating apt & system and installing nginx, npm and nodejs ...\e[0m"
 sudo apt update && sudo apt upgrade -y
 sudo apt install nginx nodejs npm -y
 echo -e "✅ \e[32mSuccessfully installed Nginx, NodeJS and npm\e[0m"
@@ -24,10 +24,9 @@ echo -e "Visit your website (served by nginx) by typing your server ip in your b
 echo -e "\n\e[34mSetting up the website and nginx configs ...\e[0m"
 sudo mkdir -p /var/www/nginx-facts-website/html
 sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
-server_ip_address=$(hostname -I | awk '{print $1}')
 sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
 server {
-    server_name $server_ip_address;
+    server_name _;
     root /var/www/nginx-facts-website/html;
     index index.html;
 

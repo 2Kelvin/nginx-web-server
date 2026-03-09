@@ -306,7 +306,7 @@ From the terminal of VM2, can you successfully ping the other internal members o
 
 =============================================================================================================================
 
-  ### MYSQL Setup
+### MYSQL Setup
 - from the **load balancer VM** SSH into **MYSQL VM**
 - The `mysql-db-setup` script sets up mysql and adds facts data for the nginx-facts website.
 - In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
@@ -314,9 +314,31 @@ From the terminal of VM2, can you successfully ping the other internal members o
     bind-address = 0.0.0.0
     ```
 
-  ### Web Servers Setup
+### Web Servers Setup
 - from the **load balancer VM** SSH into each **Web Server VM**
 - run `deploy-nginx` script on each server to serve the website. The website runs React build in the frontend and an expressjs api in the backend that fetches its data from the MYSQL database running in the MYSQL VM.
     ```bash
     sudo ./deploy-nginx
+    ```
+
+### Load Balancer Setup
+- Created a custom file **nginx-facts-loadbalancer** for the nginx loadbalancer configs in **/etc/nginx/sites-available/**.
+- used default **round robin** algorithm for my load balancer and pointed/linked to my 2 server VMs using the **server** directive.
+    ```bash
+    upstream nginx-facts-webapp-servers {
+        server webserver1 192.168.10.2;
+        server webserver2 192.168.10.3;
+    }
+    ```
+- Enabled the website configs:
+    ```bash
+    sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
+    ```
+- Checked for nginx syntax errors in config:
+    ```bash
+    sudo nginx -t
+    ```
+- All configs were good, so I restarted the nginx service in systemd with the updated changes:
+    ```bash
+    sudo systemctl reload nginx
     ```
