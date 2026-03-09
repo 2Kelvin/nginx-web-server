@@ -27,7 +27,9 @@ upstream webapp-servers {
 }
 
 server {
+    listen 80;
     server_name nginxloadbalancer.lab;
+
     location / {
         proxy_pass http://webapp-servers;
     }
