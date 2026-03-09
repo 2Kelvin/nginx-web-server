@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# update apt, upgrade system and install nginx
+echo -e "\e[34mUpdating apt & system and installing nginx ...\e[0m"
+sudo apt update && sudo apt upgrade -y
+sudo apt install nginx -y
+
+# configure firewall
+echo -e "\n\e[34mConfiguring firewall ...\e[0m"
+echo "Checking firewall status ..."
+sudo ufw status
+echo "Enabling ssh (22), http (80) and https (443) ports ..."
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw --force enable
+echo -e "✅ \e[32mSuccessfully activated the firewall and allowed ssh, http and https ports\e[0m"
+sudo ufw status
+echo -e "Visit your website (served by nginx) by typing your server ip in your browser, like so: \e[34mhttp://your_server_ip\e[0m"
+
 # setup nginx loadbalancer
 echo -e "\e[34mSetting up Nginx Loadbalancer ...\e[0m"
 sudo tee /etc/nginx/sites-available/nginx-facts-loadbalancer > /dev/null <<EOF
