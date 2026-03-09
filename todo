@@ -5,7 +5,7 @@ Todo
 - create another private/nat ubuntuserver for mysql database
 - make new react build and push to git
 - fix security: replace with all env variables exposed in scripts (db and server)
-- learn xargs, NAT, tee, EOF, linux ownership & groups
+- learn xargs, NAT, tee, EOF, linux ownership & groups, sed
 - Do this in code to **mysql-db-setup script** - In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
         ```bash
         bind-address = 0.0.0.0

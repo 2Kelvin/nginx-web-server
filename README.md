@@ -307,6 +307,10 @@ From the terminal of VM2, can you successfully ping the other internal members o
 =============================================================================================================================
 
 ### MYSQL Setup
+- Include VM1 and VM2/3/4 output of this file: `/etc/netplan/50-cloud-init.yaml`
+
+### MYSQL Setup
+- Made an `.env` file first in `/demo-website/backend` with the necessary variables to run the api and the database.
 - Ran this script for a full MYSQL database setup:
     ```bash
     sudo ./mysql-db-setup
@@ -340,7 +344,7 @@ From the terminal of VM2, can you successfully ping the other internal members o
     - Created a custom file **nginx-facts-loadbalancer** for the nginx loadbalancer configs in **/etc/nginx/sites-available/**.
     - Used default **round robin** algorithm for my load balancer and pointed/linked to my 2 server VMs using the **server** directive.
         ```bash
-        upstream nginx-facts-webapp-servers {
+        upstream webapp-servers {
             server webserver1 192.168.10.2;
             server webserver2 192.168.10.3;
         }

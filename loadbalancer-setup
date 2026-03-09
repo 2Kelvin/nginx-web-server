@@ -21,13 +21,16 @@ echo -e "Visit your website (served by nginx) by typing your server ip in your b
 # setup nginx loadbalancer
 echo -e "\e[34mSetting up Nginx Loadbalancer ...\e[0m"
 sudo tee /etc/nginx/sites-available/nginx-facts-loadbalancer > /dev/null <<EOF
-upstream nginx-facts-webapp-servers {
+upstream webapp-servers {
     server webserver1;
     server webserver2;
 }
 
 server {
     server_name nginxloadbalancer.lab;
+    location / {
+        proxy_pass http://webapp-servers
+    }
 }
 EOF
 sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
