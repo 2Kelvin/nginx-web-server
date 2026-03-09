@@ -80,6 +80,15 @@ location /api/facts {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
+- difference in EOF block between:
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+
+    and this
+
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+
 
 
 Here is the professional way to do it:
