@@ -49,8 +49,8 @@ sudo systemctl reload nginx
 echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 
 # setup MYSQL and a separate folder in user's home to store and run the expressjs api
-real_user=${SUDO_USER:-$(logname)}
-real_home=$(getent passwd "$REAL_USER" | cut -d: -f6)
+real_user=$(logname)
+real_home=$(eval echo ~$REAL_USER)
 service_name="nginx-facts-api"
 service_path="/etc/systemd/system/$service_name.service"
 api_folder="$real_home/apis/nginx-facts"
