@@ -22,8 +22,8 @@ echo -e "Visit your website (served by nginx) by typing your server ip in your b
 echo -e "\e[34mSetting up Nginx Loadbalancer ...\e[0m"
 sudo tee /etc/nginx/sites-available/nginx-facts-loadbalancer > /dev/null <<EOF
 upstream nginx-facts-webapp-servers {
-    server webserver1 192.168.10.2;
-    server webserver2 192.168.10.3;
+    server webserver1;
+    server webserver2;
 }
 
 server {
