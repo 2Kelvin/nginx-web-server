@@ -56,14 +56,6 @@ echo -e "\e[34mSetting up $service_name and its MYSQL database...\e[0m"
 mkdir -p $api_folder
 cp -r demo-website/backend/* $api_folder
 cd $api_folder
-cat <<EOF > ./.env
-DB_HOST=localhost
-DB_USER=nginx_user
-DB_PASSWORD=1234
-DB_NAME=nginx_facts
-DB_PORT=3306
-API_PORT=5000
-EOF
 npm i
 
 # installing systemd for a persistent running api across reboots

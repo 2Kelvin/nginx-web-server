@@ -25,7 +25,7 @@
 
 ## Script Explanation
 
-### Pointers on firewall configuration (`ufw`)
+  ### Pointers on firewall configuration (`ufw`)
 
 - Check the status of the firewall; which ports are open and which ports are not:
     ```bash
@@ -46,7 +46,7 @@
     ```
 
 
-### Nginx Web Server Setup
+  ### Nginx Web Server Setup
 
 The demo website is a simple fullstack app about Nginx Facts running `react in the frontend` and `ExpressJS in the backend`. Since Nginx excels at serving static sites, I made a build of this website by running `npm run build`. These `build files` is what nginx will serve. Let's set it up:
 
@@ -91,7 +91,7 @@ The demo website is a simple fullstack app about Nginx Facts running `react in t
     }
     EOF
     ```
-We're creating a website server block for our website to be served by nginx; we first give nginx our server name (replace this with your server's name/IP/host name). The server name is the ip or host name the user types in the browser trying to connect and make a request to our server. The root directive tells nginx where our website files lives, so the user requests are served the files in there. **/var/www/nginx-facts-website/html**: This is the folder we created earlier containing the build folder contents of our fullstack app.
+    We're creating a website server block for our website to be served by nginx; we first give nginx our server name (replace this with your server's name/IP/host name). The server name is the ip or host name the user types in the browser trying to connect and make a request to our server. The root directive tells nginx where our website files lives, so the user requests are served the files in there. **/var/www/nginx-facts-website/html**: This is the folder we created earlier containing the build folder contents of our fullstack app.
 
 - To enable our website to be recognized by nginx, we create a **symbolic link** of our website configuration to the `/etc/nginx/sites-enabled/` folder.
     ```bash
@@ -168,7 +168,7 @@ We're creating a website server block for our website to be served by nginx; we 
     An API is a "Long-Running Process." You want it to start once and stay awake 24/7 to listen for users. For this, you only need a .service file. Timers trigger tasks to be performed at particular times/intervals then shutdown but apis run all the time; the restart=always is what the .service file uses to run the api all the time even if it crashes.
 
     ### MYSQL Setup
-
+- The `mysql-db-setup` script sets up mysql and adds facts data for the nginx-facts website.
 - In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
     ```bash
     bind-address = 0.0.0.0
@@ -302,3 +302,21 @@ From the terminal of VM2, can you successfully ping the other internal members o
 | **4. Enable** | Create the symbolic link. | `sudo ln -s ... /etc/nginx/sites-enabled/` |
 | **5. Verify** | Run the safety test. | `sudo nginx -t` ✅ |
 | **6. Go Live** | Reload the service. | `sudo systemctl reload nginx` 🚀 |
+
+
+=============================================================================================================================
+
+  ### MYSQL Setup
+- from the **load balancer VM** SSH into **MYSQL VM**
+- The `mysql-db-setup` script sets up mysql and adds facts data for the nginx-facts website.
+- In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
+    ```bash
+    bind-address = 0.0.0.0
+    ```
+
+  ### Web Servers Setup
+- from the **load balancer VM** SSH into each **Web Server VM**
+- run `deploy-nginx` script on each server to serve the website. The website runs React build in the frontend and an expressjs api in the backend that fetches its data from the MYSQL database running in the MYSQL VM.
+    ```bash
+    sudo ./deploy-nginx
+    ```

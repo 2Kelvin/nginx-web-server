@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Define the path to your .env file
+ENV_PATH="./demo-website/backend/.env"
+
+# Load variables from the specific .env location
+if [ -f "$ENV_PATH" ]; then
+    echo -e "\e[34mLoading environment variables from $ENV_PATH...\e[0m"
+    # This reads the file, ignores comments, and exports variables
+    export $(grep -v '^#' "$ENV_PATH" | xargs -d '\n')
+else
+    echo -e "\e[31mError: .env file not found at $ENV_PATH\e[0m"
+    echo "Please ensure you have created the .env file in demo-website/backend/"
+    exit 1
+fi
+
 # installing mysql
 echo -e "\e[34mUpdating apt & system and installing MYSQL\e[0m"
 sudo apt update && sudo apt upgrade -y
@@ -7,13 +21,14 @@ sudo apt install mysql-server -y
 # start running mysql service
 sudo systemctl start mysql
 sudo systemctl enable --now mysql
+sudo systemctl status mysql
 # create nginx-facts webapp data
 sudo mysql <<EOF
-CREATE DATABASE IF NOT EXISTS nginx_facts;
-CREATE USER IF NOT EXISTS 'nginx_user'@'localhost' IDENTIFIED BY '1234';
-GRANT ALL PRIVILEGES ON nginx_facts.* TO 'nginx_user'@'localhost';
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'localhost';
 FLUSH PRIVILEGES;
-USE nginx_facts;
+USE ${DB_NAME};
 CREATE TABLE IF NOT EXISTS facts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
