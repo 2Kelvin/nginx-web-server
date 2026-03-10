@@ -1,5 +1,9 @@
 #!/bin/bash
 
+real_user=$(logname)
+real_home=$(eval echo ~$real_user)
+api_folder="$real_home/apis/nginx-facts"
+
 # update apt, upgrade system and install nginx, nodejs and npm
 echo -e "\e[34mUpdating apt & system and installing nginx, npm and nodejs ...\e[0m"
 sudo apt update && sudo apt upgrade -y
@@ -49,11 +53,8 @@ sudo systemctl reload nginx
 echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 
 # setup MYSQL and a separate folder in user's home to store and run the expressjs api
-real_user=$(logname)
-real_home=$(eval echo ~$real_user)
 service_name="nginx-facts-api"
 service_path="/etc/systemd/system/$service_name.service"
-api_folder="$real_home/apis/nginx-facts"
 node_bin=$(which node)
 echo -e "\e[34mSetting up $service_name and its MYSQL database...\e[0m"
 mkdir -p $api_folder
