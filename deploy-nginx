@@ -56,10 +56,12 @@ echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 service_name="nginx-facts-api"
 service_path="/etc/systemd/system/$service_name.service"
 node_bin=$(which node)
-echo -e "\e[34mSetting up $service_name and its MYSQL database...\e[0m"
+echo -e "\e[34mSetting up $service_name ...\e[0m"
 mkdir -p $api_folder
 cp -r demo-website/backend/* $api_folder
 cd $api_folder
+# give permissions to api-folder back to user
+sudo chown -R "$real_user:$real_user" ~/apis/nginx-facts
 npm i
 
 # installing systemd for a persistent running api across reboots
@@ -83,5 +85,7 @@ WantedBy=multi-user.target
 EOF
 sudo systemctl daemon-reload
 sudo systemctl enable --now "$service_name.service"
+# in case of script rerun, this will reload any .env variables updated if any
+sudo systemctl restart "$service_name.service"
 sudo systemctl status "$service_name.service"
 echo -e "\n✅ \e[32m$service_name successfully setup and running persistently through systemd setup\e[0m\n"

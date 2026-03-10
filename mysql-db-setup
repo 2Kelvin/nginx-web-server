@@ -34,13 +34,23 @@ else
     echo -e "ℹ️ \e[1mBind-address already configured or not found.\e[0m"
 fi
 sudo systemctl status mysql
-# Using '%' to allow the user to connect from ANY remote IP 
+
+# waiting for MYSQL to initialize, before writing data into it
+# prevents errors where data was not created since MYSQL wasn't ready yet
+# 'mysqladmin ping' checks if MYSQL is ready
+echo -e "\e[34mWaiting for MySQL to be ready...\e[0m"
+until sudo mysqladmin ping >/dev/null 2>&1; do
+  echo -n "."
+  sleep 1
+done
+echo "MySQL is up!"
+
+# creating nginx-facts webapp data
 # using'192.168.10.%' to restrict access of the DB from the 2 VMs in the internal LAN
-# create nginx-facts webapp data
 sudo mysql <<EOF
 CREATE DATABASE IF NOT EXISTS ${DB_NAME};
 CREATE USER IF NOT EXISTS '${DB_USER}'@'192.168.10.%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'${DB_HOST}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'192.168.10.%';
 FLUSH PRIVILEGES;
 USE ${DB_NAME};
 CREATE TABLE IF NOT EXISTS facts (
