@@ -23,28 +23,6 @@
     ```
     Just a quick note: before installing nginx the script updates apt and upgrade the system first to fetch the latest versions of all installed packages for better compatibility with nginx and avoiding bugs and security issues.
 
-## Script Explanation
-
-  ### Pointers on firewall configuration (`ufw`)
-
-- Check the status of the firewall; which ports are open and which ports are not:
-    ```bash
-    sudo ufw status
-    ```
-
-- Allow essential web server & ssh ports past the firewall: `ssh`:`port 22`, `http`:`port 80` & `https`: `port 443`
-    ```bash
-    sudo ufw allow ssh
-    sudo ufw allow http
-    sudo ufw allow https
-
-    # activating ufw with all the above firewall rules
-    sudo ufw enable
-
-    # checking enabled ports
-    sudo ufw status
-    ```
-
 
   ### Nginx Web Server Setup
 
@@ -306,19 +284,69 @@ From the terminal of VM2, can you successfully ping the other internal members o
 
 =============================================================================================================================
 
-### MYSQL Setup
-- Include VM1 and VM2/3/4 output of this file: `/etc/netplan/50-cloud-init.yaml`
+# Nginx Load Balancing & Reverse Proxy Web Server
+
+This project was built with a `security-first mindset` and `designed for seamless scalability`.
+
+- todo:
+    - [x] Architechture with image: network setup, vm setup, and data flow
+    - [] Setup & code explanation 
+
+
+## Architechture
+
+### 🌐 The Edge Layer: VM1 (Load Balancer & Default Gateway For The Other 3 Servers)
+
+VM1 is the shield, front door and the server the public talks to requesting for my Nginx Facts website.
+
+It has Nginx installed and set up as a load balancer pointing to the 2 webservers.
+
+I set it up to have 2 network adapters: for a `Bridged Adapter Network` and a `Private LAN Network`.
+
+It is the only server visible to the outside world via its `Bridged adapter`. On the private side, it manages a `private subnet`, providing a secure environment for the other 3 servers.
+
+I enabled `IP Forwarding` to allow traffic to pass between these two worlds. Because my internal VMs (VM2-4) have private IPs that the public internet doesn't recognize, I used `IP Masquerading (NAT)`. This ***masks*** the 3 VMs' requests with VM1's public IP so they can download updates without being directly exposed to the public/hackers.
+
+### 🏗️ The Application Layer: VM2 & VM3 (Websevers)
+
+These are my actual web servers. Each has Nginx installed to serve static react build files and a reverse proxied ExpressJS API. 
+
+Basically, each of these 2 servers, serves the Nginx Facts website.
+
+They are completely isolated from the internet for security. They use VM1 as their Default Gateway to reach the outside world.
+
+The load balancer (VM1) hands all website and API requests to these 2 servers in round robin fashion. They in turn respond by serving the Nginx Facts website files/data to the load balancer who in turn gives the request back to the client's browser to display the website.
+
+### 💾 The Data Layer: VM4 (Database)
+
+This is the MYSQL database.
+
+Through systemd, the `mysql` service runs 24/7 providing a **high availability for data access** from the webservers.  
+
+Only the webservers (VM2 & VM3) in the private LAN network have access to the database.
+
+Since it sits in a private network this ensures that even if the load balancer (VM1) is compromised, the database remains hidden from direct public access.
+
+## Network Setup
+
+## Logic
+
+- Centralized DB: Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
+
+---
+
+## VMs Setup
 
 ### MYSQL Setup
-- Made an `.env` file first in `/demo-website/backend` with the necessary variables to run the api and the database.
-- Ran this script for a full MYSQL database setup:
+- ****** Include VM1 and VM2/3/4 output of this file: `/etc/netplan/50-cloud-init.yaml`
+- first, git cloned this project in VM4.
+- Then made an `.env` file in `/demo-website/backend` with the necessary variables to run the api and the database.
+- Finally, ran this script on VM4 for a full MYSQL database installation and setup:
     ```bash
     sudo ./mysql-db-setup
     ```
-- Some keynotes and script explanation:
-    - from the **load balancer VM**, I SSH-ed into **MYSQL VM**
-    - The `mysql-db-setup` script sets up mysql and adds facts data for the nginx-facts website.
-    - In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
+- Extra things to note:
+    - Since the MYSQL database runs in its own VM, I had to allow the 2 webservers to access this data by updating the `bind address` in ` /etc/mysql/mysql.conf.d/mysqld.cnf` file to listen to all/remote interfaces (`0.0.0.0`).
         ```bash
         bind-address = 0.0.0.0
         ```
@@ -364,3 +392,27 @@ From the terminal of VM2, can you successfully ping the other internal members o
         ```bash
         sudo systemctl reload nginx
         ```
+
+
+## Explanations & Key Configurations
+
+### Firewall configuration (`ufw`)
+
+- Check the status of the firewall; which ports are open and which ports are not:
+    ```bash
+    sudo ufw status
+    ```
+
+- Allow essential web server & ssh ports past the firewall: `ssh`:`port 22`, `http`:`port 80` & `https`: `port 443`
+    ```bash
+    sudo ufw allow ssh
+    sudo ufw allow http
+    sudo ufw allow https
+
+    # activating ufw with all the above firewall rules
+    sudo ufw enable
+
+    # checking enabled ports
+    sudo ufw status
+    ```
+
