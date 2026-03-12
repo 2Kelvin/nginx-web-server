@@ -338,14 +338,13 @@ Since it sits in a private network this ensures that even if the load balancer (
 ## VMs Setup
 
 ### MYSQL Setup
-- ****** Include VM1 and VM2/3/4 output of this file: `/etc/netplan/50-cloud-init.yaml`
-- first, git cloned this project in VM4.
+- Git cloned this project in VM4.
 - Then made an `.env` file in `/demo-website/backend` with the necessary variables to run the api and the database.
 - Finally, ran this script on VM4 for a full MYSQL database installation and setup:
     ```bash
     sudo ./mysql-db-setup
     ```
-- Extra things to note:
+- Extra configs and details to note:
     - Since the MYSQL database runs in its own VM, I had to allow the 2 webservers to access this data by updating the `bind address` in ` /etc/mysql/mysql.conf.d/mysqld.cnf` file to listen to all/remote interfaces (`0.0.0.0`).
         ```bash
         bind-address = 0.0.0.0
@@ -394,7 +393,7 @@ Since it sits in a private network this ensures that even if the load balancer (
         ```
 
 
-## Explanations & Key Configurations
+## Explanation Of Other Key Configurations
 
 ### Firewall configuration (`ufw`)
 
@@ -416,3 +415,80 @@ Since it sits in a private network this ensures that even if the load balancer (
     sudo ufw status
     ```
 
+### VMs Network and Subnet Configuration
+
+For VM1's private LAN network, I created a `subnet` network of 192.168.10.0/24 in the `ubuntu` OS setup of VM1 in `VMWare`. I made VM1 the default gateway for this whole subnet with an IP of 192.168.10.1.
+
+Here, are all the `netplan` configurations made to each VM.
+
+- VM1 (load balancer & default gateway) `netplan` configuration.
+    ```bash
+    network:
+    version: 2
+    ethernets:
+        ens33:
+        dhcp4: no
+        addresses:
+            - 192.168.100.207/24
+        routes:
+            - to: default
+            via: 192.168.100.1
+        nameservers:
+            addresses: [8.8.8.8, 8.8.4.4]
+        ens34:
+        addresses:
+        - 192.168.10.1/24
+    ```
+- VM2 (webserver) `netplan` configuration.
+    ```bash
+    network:
+    version: 2
+    ethernets:
+        ens33:
+        addresses:
+        - "192.168.10.2/24"
+        nameservers:
+            addresses:
+            - 8.8.8.8
+            - 8.8.4.4
+            search: []
+        routes:
+        - to: "default"
+            via: "192.168.10.1"
+    ```
+
+- VM3 (webserver) `netplan` configuration.
+    ```bash
+    network:
+    version: 2
+    ethernets:
+        ens33:
+        addresses:
+        - "192.168.10.3/24"
+        nameservers:
+            addresses:
+            - 8.8.8.8
+            - 8.8.4.4
+            search: []
+        routes:
+        - to: "default"
+            via: "192.168.10.1"
+    ```
+
+- VM4 (MYSQL Database) `netplan` configuration.
+    ```bash
+    network:
+    version: 2
+    ethernets:
+        ens33:
+        addresses:
+        - "192.168.10.4/24"
+        nameservers:
+            addresses:
+            - 8.8.8.8
+            - 8.8.4.4
+            search: []
+        routes:
+        - to: "default"
+            via: "192.168.10.1"
+    ```
