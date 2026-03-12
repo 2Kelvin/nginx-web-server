@@ -52,7 +52,7 @@ sudo rm -f /etc/nginx/sites-enabled/default
 sudo systemctl reload nginx
 echo -e "✅ \e[32mNginx configs for the website successfully setup\e[0m\n"
 
-# setup MYSQL and a separate folder in user's home to store and run the expressjs api
+# setup a separate folder in user's home to store and run the expressjs api from; it's the API's working deirectory
 service_name="nginx-facts-api"
 service_path="/etc/systemd/system/$service_name.service"
 node_bin=$(which node)

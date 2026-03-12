@@ -1,158 +1,4 @@
-# Nginx Reverse Proxy & Web Server
-
-## Installation &  Setup
-
-- Git clone this repo to your server's home directory.
-    ```bash
-    git clone https://github.com/2Kelvin/nginx-web-server.git
-    ```
-
-- Navigate into the repo.
-    ```bash
-    cd nginx-web-server
-    ```
-
-- Give `nginx-install` excutable permission, if not given already.
-    ```bash
-    chmod +x nginx-install
-    ```
-
-- Run `nginx-install` with admin privileges to install and setup nginx, ufw and the whole Nginx Facts website.
-    ```bash
-    sudo ./nginx-install
-    ```
-    Just a quick note: before installing nginx the script updates apt and upgrade the system first to fetch the latest versions of all installed packages for better compatibility with nginx and avoiding bugs and security issues.
-
-
-  ### Nginx Web Server Setup
-
-The demo website is a simple fullstack app about Nginx Facts running `react in the frontend` and `ExpressJS in the backend`. Since Nginx excels at serving static sites, I made a build of this website by running `npm run build`. These `build files` is what nginx will serve. Let's set it up:
-
-- Create the website folder in `/var/www/`
-    ```bash
-    sudo mkdir -p /var/www/nginx-facts-website/html
-    ```
-
-- From **demo website/frontend** folder, copy all the `build folder contents` into `/var/www/nginx-facts-website/html` directory created above for our website to be served by Nginx.
-    ```bash
-    sudo cp -r demo-website/frontend/build/* /var/www/nginx-facts-website/html/
-    ```
-
-- Nginx nginx-facts website configuration:
-    ```bash
-    # grabbing the ip address of the server (ipv4 is the first one)
-    server_ip_address=$(hostname -I | awk '{print $1}')
-    sudo tee /etc/nginx/sites-available/nginx-facts <<EOF
-    server {
-        # using the ip address we fetched above to link to our server 
-        server_name $server_ip_address;
-        # folder containing our web files to be hosted
-        root /var/www/nginx-facts-website/html;
-        # nginx to serve the index.html file in our web folder above
-        index index.html;
-
-        location / {
-            # fixing routing: how to map the user route requests and the fallback route
-            # it says: navigate to file with the name the user typed if no file found navigate to the folder of that name ... 
-            # ... if no folder found navigate to default index.html page
-            try_files \$uri \$uri/ /index.html;
-        }
-
-        # nodejs api configuration
-        location /api/facts {
-            # reverse proxy: grab the api service running locally on port 5000
-            proxy_pass http://127.0.0.1:5000;
-            # setting up proxies
-            proxy_set_header Host \$host;
-            proxy_set_header X-Real-IP \$remote_addr;
-        }
-    }
-    EOF
-    ```
-    We're creating a website server block for our website to be served by nginx; we first give nginx our server name (replace this with your server's name/IP/host name). The server name is the ip or host name the user types in the browser trying to connect and make a request to our server. The root directive tells nginx where our website files lives, so the user requests are served the files in there. **/var/www/nginx-facts-website/html**: This is the folder we created earlier containing the build folder contents of our fullstack app.
-
-- To enable our website to be recognized by nginx, we create a **symbolic link** of our website configuration to the `/etc/nginx/sites-enabled/` folder.
-    ```bash
-    sudo ln -s /etc/nginx/sites-available/nginx-facts /etc/nginx/sites-enabled/
-    ```
-
-- We confirm if our nginx website configuration file has any errors:
-    ```bash
-    sudo nginx -t
-    ```
-    If there are any errors, make the necessary changes as directed in the console.
-
-- If our nginx configuration is okay, we **reload nginx** using `systemctl` for our configuration to take effect and for nginx to host our site.
-    ```bash
-    sudo systemctl reload nginx 
-    ```
-
-    ### ExpressJS Backend API Setup
-
-- Create a separate folder in user's home to store the backend api server; this is where it will be running from.
-    ```bash
-    mkdir "$HOME/apis/nginx-facts"
-    ```
-
-- Move the all the backend code to this **nginx-facts** folder
-    ```bash
-    sudo cp -r demo-website/backend/* "$HOME/apis/nginx-facts"
-    ```
-
-- Move into our newly created api folder
-    ```bash
-    cd "$HOME/apis/nginx-facts"
-    ```
-
-- Install all backend api project dependencies
-    ```bash
-    npm i
-    ```
-
-    ## Setup a `systemd service` for running the api 24/7 and persistently across reboots
-    ```bash
-    sudo tee $service_path > /dev/null <<EOF
-    [Unit]
-    Description=Persistently running Nginx Facts website API
-    # start the api only after the server's network is setup
-    After=network.target 
-
-    [Service]
-    # grab current user's username and group name to setup ownership and permission for this nginx-facts-api service
-    # working directory allows the service to path to the necessary folder containing required folders like node modules to run the api
-    # execstart is basically doing: node server.js
-    # restart makes sure the api automatically restarts on crashing; restartsec executes the api restart after 5 seconds of failing to prevent some well known issues of restarting immediately after a process crashes
-    # Environment=NODE_ENV=production: improves nodejs performance in production
-    User=$USER
-    Group=$USER
-    WorkingDirectory=$api_folder
-    ExecStart=$node_bin $api_folder/server.js
-    Environment=NODE_ENV=production
-    Restart=always
-    RestartSec=5
-
-    [Install]
-    # ensures the service starts automatically everytime the server boots
-    WantedBy=multi-user.target
-    EOF
-
-    # update systemd to acknowledge the new .service config we added
-    sudo systemctl daemon-reload
-    # start the nginx-facts-api.service immediately and persist upon reboot
-    sudo systemctl enable --now "$service_name.service"
-    # checking if the service is active and running
-    sudo systemctl status "$service_name.service"
-    ```
-    An API is a "Long-Running Process." You want it to start once and stay awake 24/7 to listen for users. For this, you only need a .service file. Timers trigger tasks to be performed at particular times/intervals then shutdown but apis run all the time; the restart=always is what the .service file uses to run the api all the time even if it crashes.
-
-    ### MYSQL Setup
-- The `mysql-db-setup` script sets up mysql and adds facts data for the nginx-facts website.
-- In **/etc/mysql/mysql.conf.d/mysqld.cnf**, update **bind address** to listen on all interfaces and allow other VMs to connect and access the data stored in MYSQL.
-    ```bash
-    bind-address = 0.0.0.0
-    ```
-
-    ### VMs setup
+ ### VMs setup
 - 1: Hardware Setup for VM1 (The Gateway)
 
     For VM1 to act as a bridge between the internet and your private workers, it needs two virtual network cards (NICs).
@@ -289,8 +135,9 @@ From the terminal of VM2, can you successfully ping the other internal members o
 This project was built with a `security-first mindset` and `designed for seamless scalability`.
 
 - todo:
+    - [] make and add the architechture picture
     - [x] Architechture with image: network setup, vm setup, and data flow
-    - [] Setup & code explanation 
+    - [x] Setup & code explanation 
 
 
 ## Architechture
@@ -339,8 +186,15 @@ Since it sits in a private network this ensures that even if the load balancer (
 
 ### MYSQL Setup
 - Git cloned this project in VM4.
-- Then made an `.env` file in `/demo-website/backend` with the necessary variables to run the api and the database.
-- Finally, ran this script on VM4 for a full MYSQL database installation and setup:
+    ```bash
+    git clone https://github.com/2Kelvin/nginx-web-server.git
+    ```
+- Navigated into the repo.
+    ```bash
+    cd nginx-web-server
+    ```
+- Then manually added an `.env` file in `/demo-website/backend` with the necessary variables to run the api and the database.
+- Finally, ran this script on the VM4 server for a full MYSQL database installation and setup:
     ```bash
     sudo ./mysql-db-setup
     ```
@@ -351,47 +205,32 @@ Since it sits in a private network this ensures that even if the load balancer (
         ```
 
 ### Web Servers Setup
-- Ran this script for a full nginx webserver setup:
+- Git cloned this project in each webserver (VM2 & VM3).
+    ```bash
+    git clone https://github.com/2Kelvin/nginx-web-server.git
+    ```
+- Navigated into the repo.
+    ```bash
+    cd nginx-web-server
+    ```
+- Ran this script for a full nginx webserver setup.
     ```bash
     sudo ./deploy-nginx
     ```
-- Steps and script explanation:
-    - from the **load balancer VM**, I SSH-ed into each **Web Server VM**
-    - I then ran `deploy-nginx` script on each server to serve the website. The website runs React build in the frontend and an expressjs api in the backend that fetches its data from the MYSQL database running in the MYSQL VM.
-        ```bash
-        sudo ./deploy-nginx
-        ```
 
 ### Load Balancer Setup
-- Ran this script for a full nginx loadbalancer setup:
+- Git cloned this project in the load balancer server (VM1).
+    ```bash
+    git clone https://github.com/2Kelvin/nginx-web-server.git
+    ```
+- Navigated into the repo.
+    ```bash
+    cd nginx-web-server
+    ```
+- Ran this script for a full nginx load balancing setup.
     ```bash
     sudo ./loadbalancer-setup
     ```
-- In this script, I:
-    - Created a custom file **nginx-facts-loadbalancer** for the nginx loadbalancer configs in **/etc/nginx/sites-available/**.
-    - Used default **round robin** algorithm for my load balancer and pointed/linked to my 2 server VMs using the **server** directive.
-        ```bash
-        upstream webapp-servers {
-            server webserver1 192.168.10.2;
-            server webserver2 192.168.10.3;
-        }
-        ```
-        - **webserver1** and **webserver2** are just hostnames I gave the 2 servers' IPs in `/etc/hosts` file.
-            <img width="1644" height="135" alt="Screenshot_20260309_072039" src="https://github.com/user-attachments/assets/305616c2-811b-4cc8-a1a6-77f780ccdf05" />
-
-    - Enabled the website configs:
-        ```bash
-        sudo ln -sf /etc/nginx/sites-available/nginx-facts-loadbalancer /etc/nginx/sites-enabled/
-        ```
-    - Checked for nginx syntax errors in config:
-        ```bash
-        sudo nginx -t
-        ```
-    - All configs were good, so I restarted the nginx service in systemd with the updated changes:
-        ```bash
-        sudo systemctl reload nginx
-        ```
-
 
 ## Explanation Of Other Key Configurations
 
