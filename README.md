@@ -47,9 +47,9 @@ For the private servers: (the 2 webservers and 1 database server) I added each o
 
 With this network setup, all the servers can communicate securely in that internal LAN. Upon getting a web/api request, the load balancer can direct the traffic securely to the 2 webservers which in turn fetch the data securely from the database located in the same subnet as them, then finally the servers hand the website response to the load balancer to give to the user to display the website in a browser. 
 
-## Logic
+## Centralized Database
 
-Centralized DB: Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
+Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
 
 
 ## VMs Setup
