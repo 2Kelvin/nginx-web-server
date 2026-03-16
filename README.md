@@ -6,42 +6,42 @@ This project was built with a `security-first mindset` and `designed for seamles
 
 ### 🌐 The Edge Layer: VM1 (Load Balancer & Default Gateway For The Other 3 Servers)
 
-- VM1 is the shield, front door and the server the public talks to requesting for my Nginx Facts website.
+- VM1 is the shield, front door and the server the public talks to requesting for the Nginx Facts website.
 
 - It has Nginx installed and set up as a load balancer pointing to the 2 webservers.
 
-- I set it up to have 2 network adapters: for a `Bridged Adapter Network` and a `Private LAN Network`.
+- I set it up to have 2 network adapters: a `Bridged Network Adapter` and a `Private LAN`.
 
 - It is the only server visible to the outside world via its `Bridged adapter`. On the private side, it manages a `private subnet`, providing a secure environment for the other 3 servers.
 
-- I enabled `IP Forwarding` to allow traffic to pass between these two worlds. Because my internal VMs (VM2-4) have private IPs that the public internet doesn't recognize, I used `IP Masquerading (NAT)`. This ***masks*** the 3 VMs' requests with VM1's public IP so they can download updates without being directly exposed to the public/hackers.
+- I enabled `IP Forwarding` to allow traffic to pass between these two worlds. Because my internal VMs (VM2-4) have private IPs that the public internet doesn't recognize, I used `IP Masquerading (NAT)`. This ***masks*** the 3 VMs' requests with VM1's public IP so they can download updates without being directly exposed to the public.
 
 ### 🏗️ The Application Layer: VM2 & VM3 (Websevers)
 
-- These are my actual web servers. Each has Nginx installed to serve static react build files and a reverse proxied ExpressJS API. 
+- These are the actual web servers. Each has Nginx installed to serve static react build files and a reverse proxied ExpressJS API. 
 
 - Basically, each of these 2 servers, serves the Nginx Facts website.
 
 - They are completely isolated from the internet for security. They use VM1 as their Default Gateway to reach the outside world.
 
-- The load balancer (VM1) hands all website and API requests to these 2 servers in round robin fashion. They in turn respond by serving the Nginx Facts website files/data to the load balancer who in turn gives the request back to the client's browser to display the website.
+- The load balancer (VM1) hands all website and API requests to these 2 servers in round robin fashion. They in turn respond by serving the Nginx Facts website files/api data to the load balancer who in turn gives the request back to the client's browser to display the website.
 
 ### 💾 The Data Layer: VM4 (Database)
 
 - This is the MYSQL database.
 
-- Through systemd, the `mysql` service runs 24/7 providing a **high availability for data access** from the webservers.  
+- Through systemd, the `mysql` service runs 24/7 providing ***high availability for data access*** from the webservers.  
 
 - Only the webservers (VM2 & VM3) in the private LAN network have access to the database.
 
 - Since it sits in a private network this ensures that even if the load balancer (VM1) is compromised, the database remains hidden from direct public access.
 
-## Network Setup
+## Network Setup Summary & Walk Through
 
-For VM1 to act as a bridge between the internet and the private servers, it has two virtual network cards (NICs).
-- Adapter 1: is set to a `Bridged network`. This is the **Public interface** that talks to the router and internet.
-- Adapter 2: is set to a `LAN Segment network`. It's the default gateway of all the other 3 servers defined in this subnet.
-- Finally, for the servers in the private network to access the internet, I enabled port forwarding in VM1 and IP Masquerading to mask private servers' IPs with VM1's public IP.
+For VM1 to act as a bridge between the internet and the private servers, it has two virtual network cards (NICs) assigned to it:
+- Adapter 1: is set to a `Bridged network`. This is the **Public interface** that talks to the router and the internet.
+- Adapter 2: is set to a `LAN Segment network`. VM1 is assigned as the default gateway of this subnet and of all the other 3 servers defined in this private LAN.
+- Finally, for the servers in the private network to access the internet, I enabled port forwarding in VM1 and IP Masquerading to mask each private server's IP with VM1's public IP.
 
 For the private servers: (the 2 webservers and 1 database server) I added each one of them in the subnet created in VM1 and configured VM1's internal LAN IP as their default gateway. This way, they are all hidden from the internet. If in need of internet, they can do so securely through VM1's public IP which masks their real private IPs.
 
@@ -49,7 +49,7 @@ With this network setup, all the servers can communicate securely in that intern
 
 ## Centralized Database
 
-Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
+Both ebserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
 
 
 ## VMs Setup
@@ -69,7 +69,7 @@ Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4).
     sudo ./mysql-db-setup
     ```
 - Extra configs and details to note:
-    - Since the MYSQL database runs in its own VM, I had to allow the 2 webservers to access this data by updating the `bind address` in ` /etc/mysql/mysql.conf.d/mysqld.cnf` file to listen to all/remote interfaces (`0.0.0.0`).
+    - Since the MYSQL database runs in its own VM, I had to allow the 2 webservers to access this data by updating the `bind address` in ` /etc/mysql/mysql.conf.d/mysqld.cnf` file to listen on all/remote interfaces (`0.0.0.0`).
         ```bash
         bind-address = 0.0.0.0
         ```
@@ -106,27 +106,22 @@ Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4).
 
 ### Firewall configuration (`ufw`)
 
-- Check the status of the firewall; which ports are open and which ports are not:
-    ```bash
-    sudo ufw status
-    ```
+I allowed the essential web server & ssh ports past the firewall: `ssh`:`port 22`, `http`:`port 80` & `https`: `port 443`
+```bash
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
 
-- Allow essential web server & ssh ports past the firewall: `ssh`:`port 22`, `http`:`port 80` & `https`: `port 443`
-    ```bash
-    sudo ufw allow ssh
-    sudo ufw allow http
-    sudo ufw allow https
+# activating ufw with all the above firewall rules
+sudo ufw enable
 
-    # activating ufw with all the above firewall rules
-    sudo ufw enable
+# checking enabled ports
+sudo ufw status
+```
 
-    # checking enabled ports
-    sudo ufw status
-    ```
+### Subnet Configuration
 
-### VMs Network and Subnet Configuration
-
-For VM1's private LAN network, I created a `subnet` network of 192.168.10.0/24 in the `ubuntu` OS setup of VM1 in `VMWare`. I made VM1 the default gateway for this whole subnet with an IP of 192.168.10.1.
+For VM1's private LAN network, I created a `subnet` network of 192.168.10.0/24 in the `Ubuntu OS` setup of VM1 in `VMWare`. I made VM1 the default gateway for this whole subnet with an IP of 192.168.10.1.
 
 Here, are all the `netplan` configurations made to each VM.
 
@@ -206,8 +201,8 @@ Here, are all the `netplan` configurations made to each VM.
 
 | Step | Action | Command / Location |
 | :--- | :--- | :--- |
-| **1. Files** | Create a unique folder for the site. | `/var/www/mydomain.com/html` |
-| **2. Config** | Create a named file (not editing default). | `/etc/nginx/sites-available/mydomain.com` |
+| **1. Files** | Create a unique folder for the website. | `/var/www/mydomain.com/html` |
+| **2. Config** | Create a named config file (not editing default). | `/etc/nginx/sites-available/mydomain.com` |
 | **3. Identity** | Set the `server_name` and `root`. | Inside the config file ✍️ |
 | **4. Enable** | Create the symbolic link. | `sudo ln -s /etc/nginx/sites-available/mydomain.com /etc/nginx/sites-enabled/` |
 | **5. Verify** | Run nginx safety test. | `sudo nginx -t` ✅ |
