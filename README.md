@@ -6,35 +6,35 @@ This project was built with a `security-first mindset` and `designed for seamles
 
 ### 🌐 The Edge Layer: VM1 (Load Balancer & Default Gateway For The Other 3 Servers)
 
-VM1 is the shield, front door and the server the public talks to requesting for my Nginx Facts website.
+- VM1 is the shield, front door and the server the public talks to requesting for my Nginx Facts website.
 
-It has Nginx installed and set up as a load balancer pointing to the 2 webservers.
+- It has Nginx installed and set up as a load balancer pointing to the 2 webservers.
 
-I set it up to have 2 network adapters: for a `Bridged Adapter Network` and a `Private LAN Network`.
+- I set it up to have 2 network adapters: for a `Bridged Adapter Network` and a `Private LAN Network`.
 
-It is the only server visible to the outside world via its `Bridged adapter`. On the private side, it manages a `private subnet`, providing a secure environment for the other 3 servers.
+- It is the only server visible to the outside world via its `Bridged adapter`. On the private side, it manages a `private subnet`, providing a secure environment for the other 3 servers.
 
-I enabled `IP Forwarding` to allow traffic to pass between these two worlds. Because my internal VMs (VM2-4) have private IPs that the public internet doesn't recognize, I used `IP Masquerading (NAT)`. This ***masks*** the 3 VMs' requests with VM1's public IP so they can download updates without being directly exposed to the public/hackers.
+- I enabled `IP Forwarding` to allow traffic to pass between these two worlds. Because my internal VMs (VM2-4) have private IPs that the public internet doesn't recognize, I used `IP Masquerading (NAT)`. This ***masks*** the 3 VMs' requests with VM1's public IP so they can download updates without being directly exposed to the public/hackers.
 
 ### 🏗️ The Application Layer: VM2 & VM3 (Websevers)
 
-These are my actual web servers. Each has Nginx installed to serve static react build files and a reverse proxied ExpressJS API. 
+- These are my actual web servers. Each has Nginx installed to serve static react build files and a reverse proxied ExpressJS API. 
 
-Basically, each of these 2 servers, serves the Nginx Facts website.
+- Basically, each of these 2 servers, serves the Nginx Facts website.
 
-They are completely isolated from the internet for security. They use VM1 as their Default Gateway to reach the outside world.
+- They are completely isolated from the internet for security. They use VM1 as their Default Gateway to reach the outside world.
 
-The load balancer (VM1) hands all website and API requests to these 2 servers in round robin fashion. They in turn respond by serving the Nginx Facts website files/data to the load balancer who in turn gives the request back to the client's browser to display the website.
+- The load balancer (VM1) hands all website and API requests to these 2 servers in round robin fashion. They in turn respond by serving the Nginx Facts website files/data to the load balancer who in turn gives the request back to the client's browser to display the website.
 
 ### 💾 The Data Layer: VM4 (Database)
 
-This is the MYSQL database.
+- This is the MYSQL database.
 
-Through systemd, the `mysql` service runs 24/7 providing a **high availability for data access** from the webservers.  
+- Through systemd, the `mysql` service runs 24/7 providing a **high availability for data access** from the webservers.  
 
-Only the webservers (VM2 & VM3) in the private LAN network have access to the database.
+- Only the webservers (VM2 & VM3) in the private LAN network have access to the database.
 
-Since it sits in a private network this ensures that even if the load balancer (VM1) is compromised, the database remains hidden from direct public access.
+- Since it sits in a private network this ensures that even if the load balancer (VM1) is compromised, the database remains hidden from direct public access.
 
 ## Network Setup
 
@@ -49,9 +49,8 @@ With this network setup, all the servers can communicate securely in that intern
 
 ## Logic
 
-- Centralized DB: Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
+Centralized DB: Both Webserver VMs (VM1 & VM2) connect to a single, dedicated Database VM (VM4). This ensures **data integrity**, no matter which webserver a user hits, they see the same nginx facts. If a user adds a new fact while connected to any of the webservers, that fact will exist on the other webserver too. The data becomes consistent. A single source of truth.
 
----
 
 ## VMs Setup
 
