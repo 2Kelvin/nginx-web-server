@@ -1,6 +1,6 @@
 # Nginx Load Balancing & Reverse Proxy Web Server
 
-This project was built with a `security-first mindset` and `designed for seamless scalability`.
+This project was built with a `**security-first mindset**` and `**designed for seamless scalability**`.
 
 ## Architechture
 
