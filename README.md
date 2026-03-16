@@ -4,6 +4,8 @@ This project was built with a `security-first mindset` and `designed for seamles
 
 ## Architechture
 
+<img width="1408" height="768" alt="Gemini_Generated_Image_jhcglmjhcglmjhcg" src="https://github.com/user-attachments/assets/250b76d3-2ce3-44a4-9a23-8118098145aa" />
+
 ### 🌐 The Edge Layer: VM1 (Load Balancer & Default Gateway For The Other 3 Servers)
 
 - VM1 is the shield, front door and the server the public talks to requesting for the Nginx Facts website.
