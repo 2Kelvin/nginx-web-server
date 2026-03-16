@@ -1,144 +1,6 @@
- ### VMs setup
-- 1: Hardware Setup for VM1 (The Gateway)
-
-    For VM1 to act as a bridge between the internet and your private workers, it needs two virtual network cards (NICs).
-
-    Create a New Virtual Machine: Select your Ubuntu 24.04 ISO.
-
-    Network Configuration: By default, VMware gives you one adapter. We need to add a second one manually.
-
-        Adapter 1: Set this to Bridged. This is your "Public" interface that talks to your home router. 🌐
-
-        Adapter 2: Click "Add..." > "Network Adapter" and set this one to a LAN Segment.
-
-    Create the LAN Segment: Click the "LAN Segments..." button and create a new one named Internal-Nginx-Lab. Select this segment for Adapter 2. ⛓️
-
-- VM1: The Gateway & Load Balancer 🚦
-
-    When you start the Ubuntu 24.04 installation for VM1, the installer will reach the "Network connections" screen. Because you added two adapters in VMware, you should see two interfaces (likely named ens33 and ens34 or similar).
-
-    Interface 1 (Bridged): This should automatically show an IP address from your physical router (e.g., 192.168.1.XX). This is your link to the internet.
-
-    Interface 2 (LAN Segment): This will likely show "no IP" or a self-assigned address because there is no DHCP server on a LAN Segment.
-
-    For the LAN Segment interface, we want to set a Manual (Static) IP right now in the installer. This will be the "Internal Gateway" address that all other VMs use to find the internet and the Load Balancer.
-    Setting the Internal IP
-
-    Let's use the 192.168.10.X range for our private network:
-
-    Subnet: 192.168.10.0/24
-
-    Address: 192.168.10.1 (This will be VM1's internal identity)
-
-    Gateway: Leave this blank for this specific interface (VM1 gets its internet from the Bridged interface, not itself).
-
-    Name servers: You can use Google's 8.8.8.8, 8.8.4.4.
-
-    Once you finish the installation and log in to VM1, we can verify the setup.
-
-    ens33 is your gateway to the internet 🌐, and ens34 is the "front door" for your internal private network 🏠.
-- Now we need to transform VM1 from a standard server into a router. By default, Linux won't pass traffic from one interface to another. We have to explicitly enable IP Forwarding so that when your workers (VM2, VM3) send requests to VM1, it knows how to pass them out to the internet.
-    1. Enable IP Forwarding
-
-    First, let's tell the kernel to allow forwarding. Run this command to check the current status:
-    cat /proc/sys/net/ipv4/ip_forward
-
-    If it returns 0, forwarding is off. If it returns 1, it's already on.
-    2. Configure NAT (Masquerading)
-
-    Even with forwarding on, the internet won't know how to send data back to your private 192.168.10.x addresses. We use IP Masquerading to hide the private IPs behind VM1's public IP.
-
-    We can use iptables to set this up. The command looks like this:
-    sudo iptables -t nat -A POSTROUTING -o ens33 -j MASQUERADE
-
-- Since we want VM1 to act as a router every time it starts up, we need to edit a configuration file so this setting persists after a reboot.
-
-    Open the sysctl configuration: sudo nano /etc/sysctl.conf
-
-    Look for the line: #net.ipv4.ip_forward=1
-
-    Uncomment it by removing the #.
-
-- Setting up the Workers (VM2, VM3, VM4) 🏗️
-
-Now, let's look at the installation of these three VMs. In VMware, when you create them:
-
-    Give them only one network adapter.
-
-    Connect that adapter to your LAN Segment (Internal-Nginx-Lab).
-During the Ubuntu installation for these machines, you'll need to configure the network manually, just like we did for VM1's second interface. However, there is one crucial difference: these machines need a Default Gateway. 🚦
-
-If you are setting up VM2 (Worker 1) right now, you would enter:
-
-    Subnet: 192.168.10.0/24
-
-    Address: 192.168.10.2
-
-    Gateway: 192.168.10.1 (VM1s internal LAN IP)
-
-- VM3: The Second Worker 🏗️
-
-Since your goal is load balancing, VM3 needs to be a "twin" of VM2. This allows VM1 to split traffic between them.
-
-    Network: Add one adapter set to your LAN Segment (Internal-Nginx-Lab).
-
-    Static IP Configuration:
-
-        Address: 192.168.10.3/24
-
-        Gateway: 192.168.10.1 (Points back to your VM1 router)
-
-        DNS: 8.8.8.8, 8.8.4.4
-
-VM4: The Dedicated Database 💾
-
-This VM is the most "protected" part of your network. In a professional setup, the database stays at the very back of the architecture.
-
-    Network: Add one adapter set to the same LAN Segment.
-
-    Static IP Configuration:
-
-        Address: 192.168.10.4/24
-
-        Gateway: 192.168.10.1
-
-        DNS: 8.8.8.8, 8.8.4.4
-
-- Verifying the Internal "Web" 🕸️
-
-Now that you have the IPs assigned, we need to make sure the VMs can talk to each other, not just the internet. This is vital for your CRUD app because the workers (VM2, VM3) must be able to reach the database (VM4).
-
-Once you have finished installing VM3 and VM4, let's run a quick connectivity check.
-
-From the terminal of VM2, can you successfully ping the other internal members of the team?
-
-    ping -c 2 192.168.10.3 (Checking the other worker)
-
-    ping -c 2 192.168.10.4 (Checking the database)
-
-## NGINX Deployment Summary
-
-| Step | Action | Command / Location |
-| :--- | :--- | :--- |
-| **1. Files** | Create a unique folder for the site. | `/var/www/yourdomain.com/html` |
-| **2. Config** | Create a named file (not editing default). | `/etc/nginx/sites-available/yourdomain.com` |
-| **3. Identity** | Set the `server_name` and `root`. | Inside the config file ✍️ |
-| **4. Enable** | Create the symbolic link. | `sudo ln -s ... /etc/nginx/sites-enabled/` |
-| **5. Verify** | Run the safety test. | `sudo nginx -t` ✅ |
-| **6. Go Live** | Reload the service. | `sudo systemctl reload nginx` 🚀 |
-
-
-=============================================================================================================================
-
 # Nginx Load Balancing & Reverse Proxy Web Server
 
 This project was built with a `security-first mindset` and `designed for seamless scalability`.
-
-- todo:
-    - [] make and add the architechture picture
-    - [x] Architechture with image: network setup, vm setup, and data flow
-    - [x] Setup & code explanation 
-
 
 ## Architechture
 
@@ -175,6 +37,15 @@ Only the webservers (VM2 & VM3) in the private LAN network have access to the da
 Since it sits in a private network this ensures that even if the load balancer (VM1) is compromised, the database remains hidden from direct public access.
 
 ## Network Setup
+
+For VM1 to act as a bridge between the internet and the private servers, it has two virtual network cards (NICs).
+- Adapter 1: is set to a `Bridged network`. This is the **Public interface** that talks to the router and internet.
+- Adapter 2: is set to a `LAN Segment network`. It's the default gateway of all the other 3 servers defined in this subnet.
+- Finally, for the servers in the private network to access the internet, I enabled port forwarding in VM1 and IP Masquerading to mask private servers' IPs with VM1's public IP.
+
+For the private servers: (the 2 webservers and 1 database server) I added each one of them in the subnet created in VM1 and configured VM1's internal LAN IP as their default gateway. This way, they are all hidden from the internet. If in need of internet, they can do so securely through VM1's public IP which masks their real private IPs.
+
+With this network setup, all the servers can communicate securely in that internal LAN. Upon getting a web/api request, the load balancer can direct the traffic securely to the 2 webservers which in turn fetch the data securely from the database located in the same subnet as them, then finally the servers hand the website response to the load balancer to give to the user to display the website in a browser. 
 
 ## Logic
 
@@ -331,3 +202,14 @@ Here, are all the `netplan` configurations made to each VM.
         - to: "default"
             via: "192.168.10.1"
     ```
+
+## NGINX Simple Deployment Summary
+
+| Step | Action | Command / Location |
+| :--- | :--- | :--- |
+| **1. Files** | Create a unique folder for the site. | `/var/www/mydomain.com/html` |
+| **2. Config** | Create a named file (not editing default). | `/etc/nginx/sites-available/mydomain.com` |
+| **3. Identity** | Set the `server_name` and `root`. | Inside the config file ✍️ |
+| **4. Enable** | Create the symbolic link. | `sudo ln -s /etc/nginx/sites-available/mydomain.com /etc/nginx/sites-enabled/` |
+| **5. Verify** | Run nginx safety test. | `sudo nginx -t` ✅ |
+| **6. Go Live** | Reload nginx service. | `sudo systemctl reload nginx` 🚀 |
