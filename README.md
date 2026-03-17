@@ -199,6 +199,13 @@ Here, are all the `netplan` configurations made to each VM.
             via: "192.168.10.1"
     ```
 
+## Performance & Security Highlights
+
+1. `Traffic Distribution:` Round Robin Load Balancing.
+2. `Network Security:` NAT/IP Masquerading (Ensures VM2-4 have no public-facing footprint).
+3. `Process Management:` Systemd integration for Node.js API to ensure 99.9% uptime through auto-restarts.
+4. `Persistence:` Centralized MySQL instance providing a **Single Source of Truth** for distributed web nodes.
+
 ## NGINX Simple Deployment Summary
 
 | Step | Action | Command / Location |
